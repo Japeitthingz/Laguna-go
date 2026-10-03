@@ -1,0 +1,252 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="referrer" content="strict-origin-when-cross-origin"><meta name="theme-color" content="#0b5563">
+<title>Laguna Go</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700&family=Figtree:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"><style>:root{--lake:#0b5563;--lake2:#083e49;--jeep:#d6402f;--sun:#f5b52e;--cream:#fffaf0;--paddy:#e3ecd3;--ink:#16282c;--mute:#5f7075;font-family:Figtree,system-ui,sans-serif}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}[hidden]{display:none!important}
+html,body{margin:0;height:100%;background:var(--paddy);color:var(--ink)}
+#app{height:100%;height:100dvh;min-height:320px;display:flex;flex-direction:column;position:relative;background:var(--cream);overflow:hidden}
+@media(min-width:600px){body{display:grid;place-items:center}#app{width:410px;height:min(860px,94vh);border-radius:36px;box-shadow:0 20px 60px #0b55634d;border:8px solid var(--lake2)}}
+main{flex:1;min-height:0;position:relative}main>section{position:absolute;top:0;right:0;bottom:0;left:0;overflow:auto;overscroll-behavior:contain}
+h1,h2,h3{font-family:"Bricolage Grotesque",sans-serif;margin:.3em 0;line-height:1.15}
+#map{position:absolute;top:0;right:0;bottom:0;left:0;background:#cfe3dc}
+#top{position:absolute;z-index:500;top:calc(10px + env(safe-area-inset-top));left:10px;right:10px}
+#search{display:flex;align-items:center;gap:6px;background:#fff;border-radius:16px;padding:5px 5px 5px 12px;box-shadow:0 4px 16px #0b55633a}
+.logo{font:700 15px "Bricolage Grotesque";color:var(--lake)}.logo b{color:var(--jeep)}
+#search input{flex:1;border:0;padding:9px 6px;min-width:0;background:none;font-size:16px}#search input:focus{outline:0}
+#search button{background:var(--lake);color:#fff;border:0;padding:9px 14px}
+#sugg{list-style:none;margin:6px 0 0;padding:4px;background:#fff;border-radius:14px;box-shadow:0 6px 20px #0b55633a}
+#sugg button{width:100%;text-align:left;border:0;background:none;color:var(--ink);padding:11px 10px;border-radius:10px}#sugg small{color:var(--mute);margin-left:6px}
+input,select{padding:12px;border:1px solid #cfd9cc;border-radius:12px;font:inherit;width:100%;background:#fff}
+button{font:inherit;padding:10px 14px;border:1.5px solid var(--lake);background:#fff;color:var(--lake);border-radius:12px;cursor:pointer;transition:transform .12s}
+button:active{transform:scale(.96)}button.pri{background:var(--lake);color:#fff}button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--sun)}
+.fabs{position:absolute;z-index:500;right:12px;bottom:calc(14px + var(--sheet,0px));display:flex;flex-direction:column;gap:8px;align-items:flex-end;transition:bottom .25s}
+.fabs button{box-shadow:0 4px 14px #0b556340;border-radius:99px;min-height:46px;min-width:46px;padding:0 14px;font-size:14px}#locate{font-size:22px;padding:0}#locate.busy{animation:pulse 1s infinite}
+@keyframes pulse{50%{background:var(--sun)}}
+#msg{position:absolute;z-index:600;top:72px;left:12px;right:12px;background:var(--ink);color:#fff;padding:10px 14px;border-radius:12px;animation:up .2s}
+#nav{display:flex;border-top:1px solid #e1e8dc;padding-bottom:env(safe-area-inset-bottom);background:#fff}
+#nav button{flex:1;border:0;background:none;color:var(--mute);font-size:11px;display:flex;flex-direction:column;align-items:center;gap:2px;border-radius:0;padding:8px 0}
+#nav span{font-size:20px}#nav .on{color:var(--lake);font-weight:600;box-shadow:inset 0 3px var(--jeep)}
+header{padding:calc(14px + env(safe-area-inset-top)) 14px 6px;background:linear-gradient(var(--paddy),var(--cream))}header h1{margin:0}header p{margin:2px 0 10px;color:var(--mute)}
+.pad{padding:14px}.chips{display:flex;gap:8px;overflow-x:auto;padding:8px 14px;scrollbar-width:none}.chips button{white-space:nowrap;border-radius:99px;padding:8px 14px}.chips .on{background:var(--lake);color:#fff}
+section h2{padding:0 14px;margin-top:18px}.grid{display:grid;gap:12px;padding:0 14px 14px}
+.banner{margin:8px 14px;padding:12px;border-radius:14px;background:#fff3d3;display:flex;gap:10px;align-items:center;justify-content:space-between;font-size:14px}
+.card{background:#fff;border-radius:18px;overflow:hidden;box-shadow:0 2px 10px #0b55631f}.ph{height:120px;background:linear-gradient(135deg,var(--lake),#6fb3a6);display:grid;place-items:center;font-size:42px}.ph img,.hero{width:100%;height:100%;object-fit:cover}
+.cb{padding:12px}.cb h3{margin:0}.meta{font-size:13px;color:var(--mute);margin:.2em 0}.row{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}.row button{flex:1}
+.km{background:var(--paddy);color:var(--lake2);font-weight:600;font-size:12px;padding:2px 8px;border-radius:99px}
+.demo,.warn{background:#ffe7a8;color:#5a3d00;font-size:11px;font-weight:600;padding:2px 8px;border-radius:99px;vertical-align:middle}.warn{display:block;border-radius:10px;padding:8px;font-size:13px}
+.tags{display:flex;gap:6px;flex-wrap:wrap}.tags span{background:var(--paddy);border-radius:99px;padding:3px 10px;font-size:12px}
+#sheet{position:absolute;z-index:700;left:0;right:0;bottom:0;max-height:62%;overflow:auto;background:#fff;border-radius:24px 24px 0 0;box-shadow:0 -6px 28px #0b556340;padding:8px 14px calc(14px + env(safe-area-inset-bottom));animation:up .28s ease-out}
+@keyframes up{from{transform:translateY(40px);opacity:0}}
+.grab{width:44px;height:5px;border-radius:9px;background:#cfd9cc;margin:4px auto 10px}.sh{height:130px;margin:0 -14px 8px;border-radius:0}#sheet .ph{height:130px;margin:0 -14px 8px}
+#sheet ol{padding-left:20px}.tl{list-style:none;padding:0!important;margin:8px 0}.tl li{border-left:3px solid var(--lake);padding:2px 0 14px 12px;margin-left:8px;position:relative}.tl li.walk{border-left-style:dashed}.tl li p{margin:2px 0;font-size:14px}.tl li p.tr{color:var(--jeep);font-weight:600}
+#v-reels{scroll-snap-type:y mandatory;background:#000}.reel{height:100%;scroll-snap-align:start;scroll-snap-stop:always;position:relative;color:#fff;overflow:hidden}
+.stage{position:absolute;top:0;right:0;bottom:0;left:0;display:grid;place-content:center;text-align:center;gap:8px;background:linear-gradient(160deg,var(--lake),#12332f,var(--jeep));background-size:300% 300%;animation:drift 10s ease infinite alternate;animation-play-state:paused}
+.reel.playing:not(.paused) .stage{animation-play-state:running}.reel video{position:absolute;top:0;right:0;bottom:0;left:0;width:100%;height:100%;object-fit:cover}
+@keyframes drift{to{background-position:100% 100%}}.bar{position:absolute;left:0;right:0;top:0;height:3px;background:#fff3}.bar i{display:block;height:100%;background:#fff;width:0;animation:bar 8s linear infinite;animation-play-state:paused}.reel.playing:not(.paused) .bar i{animation-play-state:running}@keyframes bar{to{width:100%}}
+.reel .pill{position:absolute;top:calc(14px + env(safe-area-inset-top));left:12px}.pauseico{font-size:56px;opacity:0}.reel.paused .pauseico{opacity:.8}
+.ov{position:absolute;left:0;right:0;bottom:0;padding:16px 14px;background:linear-gradient(transparent,#000d)}.ov .meta{color:#dce7e5}.ov p{margin:4px 0}
+.ov button{background:#ffffff26;color:#fff;border-color:#fff6;backdrop-filter:blur(6px)}.ov .pri{background:var(--jeep);border-color:var(--jeep)}.ov .loc{background:none;border:0;padding:4px 0;font-weight:600}
+.empty{padding:28px 20px;color:var(--mute);text-align:center}
+</style></head><body><div id="app">
+<main><section id="v-map"><div id="map"></div>
+<div id="top"><form id="search"><span class="logo">Laguna<b>Go</b></span><input name="q" autocomplete="off" placeholder="Saan tayo sa Laguna?" aria-label="Search places"><button aria-label="Search online">Go</button></form><ul id="sugg" hidden></ul></div>
+<div class="fabs"><button id="home" aria-label="Show all of Laguna">Laguna</button><button id="locate" aria-label="My location">◎</button></div><div id="msg" hidden></div></section>
+<section id="v-discover" hidden></section><section id="v-reels" hidden></section>
+<section id="v-saved" hidden></section><section id="v-profile" hidden></section></main>
+<div id="sheet" hidden></div><nav id="nav"></nav></div><div id="boot" style="position:fixed;z-index:9999;top:0;left:0;right:0;background:#fde8b8;color:#400;font:13px system-ui;padding:6px" hidden></div><script>addEventListener("error",e=>{var b=document.getElementById("boot");b.hidden=false;b.textContent="Error: "+e.message});setTimeout(function(){if(!window.__lg){var b=document.getElementById("boot");b.hidden=false;b.textContent="Laguna Go did not start. Leaflet may be blocked or a script failed."}},6000)</script><script type="module">
+import L from "https://cdn.jsdelivr.net/npm/leaflet@1.9.4/+esm";
+const ENV=window.LAGUNA_ENV||{};const __m={};
+__m["data/categories"]=(()=>{
+const categories=[["attractions","Tourist Attractions","🏛️"],["restaurants","Restaurants","🍽️"],["cafes","Cafes","☕"],["nature","Nature","🌿"],["activities","Activities","🎢"],["shopping","Shopping","🛍️"],["hotels","Hotels","🛏️"],["parks","Parks","🌳"],["events","Events","🎉"],["hidden","Hidden Gems","💎"]].map(([id,label,emoji])=>({id,label,emoji}));
+
+return {categories};})();
+__m["data/demo/places"]=(()=>{
+// DEMO DATA: approximate coordinates, short generic descriptions. Verify before production.
+const d=(id,name,town,cats,lat,lng,desc,popularity,featured=false)=>({id,name,town,cats,lat,lng,desc,popularity,featured,photo:null,demo:true});
+const places=[
+d("pagsanjan-falls","Pagsanjan Falls","Cavinti",["nature","attractions"],14.2987,121.4586,"Waterfalls in a river gorge, a classic Laguna day trip.",95,true),
+d("lake-caliraya","Lake Caliraya","Lumban",["nature","activities"],14.3167,121.5167,"Highland reservoir popular for water sports and views.",80,true),
+d("makiling","Mount Makiling","Los Baños",["nature","parks"],14.1333,121.2,"Forested mountain with trails near Los Baños.",85,true),
+d("rizal-shrine","Rizal Shrine","Calamba",["attractions"],14.2111,121.165,"Replica of the ancestral home of José Rizal.",75),
+d("ek","Enchanted Kingdom","Santa Rosa",["activities"],14.3,121.0883,"Theme park in Santa Rosa.",90),
+d("nagcarlan","Nagcarlan Underground Cemetery","Nagcarlan",["attractions","hidden"],14.1394,121.4167,"Historic underground cemetery in Nagcarlan.",55),
+d("hidden-valley","Hidden Valley Springs","Calauan",["nature","hidden"],14.1517,121.3333,"Forest resort with spring pools.",70),
+d("seven-lakes","Seven Lakes Area","San Pablo",["nature","hidden"],14.0683,121.3258,"Cluster of crater lakes around San Pablo.",65),
+d("santa-cruz","Santa Cruz Town Center","Santa Cruz",["attractions"],14.2789,121.4161,"Provincial capital's town center.",50)];
+
+return {places};})();
+__m["data/demo/reels"]=(()=>{
+// DEMO DATA: no real videos. Add files under /public/videos and set videoUrl.
+const reels=[
+{id:"r1",title:"3 underrated places to visit in Laguna",creator:"Demo Creator",desc:"Placeholder reel. Replace with real content.",placeId:"nagcarlan",videoUrl:null,demo:true},
+{id:"r2",title:"Morning on Lake Caliraya",creator:"Demo Creator",desc:"Placeholder reel.",placeId:"lake-caliraya",videoUrl:null,demo:true},
+{id:"r3",title:"Makiling trail first look",creator:"Demo Creator",desc:"Placeholder reel.",placeId:"makiling",videoUrl:null,demo:true}];
+
+return {reels};})();
+__m["data/transport"]=(()=>{
+// PRODUCTION transit data. Empty until verified data is added. Never invent entries.
+const routes=[],stops=[],commuteGuides=[];
+
+return {routes,stops,commuteGuides};})();
+__m["data/demo/transport"]=(()=>{
+// DEMO DATA ONLY. Bracketed text is a placeholder, NOT a real stop, fare, or schedule.
+// Segment: {mode, from:{name,kind}|null, to:{name,kind}|null, landmark, minutes, fare, note}. null = not available.
+const ph=(mode,from,to,note)=>({mode,from:from&&{name:from},to:to&&{name:to},landmark:null,minutes:null,fare:null,note});
+const commuteGuides=[{id:"demo-santa-cruz-calamba",fromTown:"Santa Cruz",toTown:"Calamba",demo:true,verified:false,totalMinutes:null,totalFare:null,segments:[
+ph("walk",null,"[verified pickup point]","Walk to the pickup point"),
+ph("unknown","[verified pickup point]","[verified transfer point]","Ride toward [destination]"),
+ph("walk","[verified transfer point]","[verified next pickup]","Walk approximately [time]"),
+ph("unknown","[verified next pickup]","[verified drop-off]","Ride to destination")]}];
+
+return {commuteGuides};})();
+__m["data/transportModes"]=(()=>{
+// Vocabulary only (not transit data). Add modes here; guides reference them by key.
+const MODES={walk:{icon:"🚶",label:"Walk"},jeepney:{icon:"🚐",label:"Jeepney"},bus:{icon:"🚌",label:"Bus"},tricycle:{icon:"🛺",label:"Tricycle"},uv:{icon:"🚙",label:"UV Express"},unknown:{icon:"🚏",label:"Ride"}};
+
+return {MODES};})();
+__m["services/repo"]=(()=>{
+// Data access layer. Replace bodies with fetch(`${VITE_API_BASE_URL}/...`) when a backend exists.
+const {categories}=__m["data/categories"];
+const {places:dp}=__m["data/demo/places"];
+const {reels:dr}=__m["data/demo/reels"];
+const {commuteGuides:dg}=__m["data/demo/transport"];
+const {commuteGuides:pg}=__m["data/transport"];
+const DEMO=ENV.VITE_USE_DEMO_DATA!=="false";
+const K="lagunago.saved",user={id:"local",name:"Guest"};
+const repo={
+ user:async()=>user,
+ categories:async()=>categories,
+ places:async()=>DEMO?dp:[],
+ reels:async()=>DEMO?dr:[],
+ commuteGuide:async(a,b)=>[...pg,...(DEMO?dg:[])].find(g=>g.fromTown===a&&g.toTown===b)||null,
+ saved:async()=>new Set(JSON.parse(localStorage.getItem(K)||"[]")),
+ toggleSaved:async id=>{const s=await repo.saved();s.has(id)?s.delete(id):s.add(id);localStorage.setItem(K,JSON.stringify([...s]));return s;}};
+
+return {repo,DEMO};})();
+__m["services/routing"]=(()=>{
+const E=ENV,U={driving:E.VITE_OSRM_DRIVING_URL||"https://routing.openstreetmap.de/routed-car",walking:E.VITE_OSRM_WALKING_URL||"https://routing.openstreetmap.de/routed-foot"};
+async function route(mode,a,b){
+ const r=await fetch(`${U[mode]}/route/v1/driving/${a.lng},${a.lat};${b.lng},${b.lat}?overview=full&geometries=geojson&steps=true`);
+ const j=await r.json(); if(j.code!=="Ok")throw new Error("No route found");
+ const x=j.routes[0];return{km:x.distance/1000,min:Math.round(x.duration/60),geometry:x.geometry,
+  steps:x.legs[0].steps.map(s=>`${s.maneuver.type} ${s.maneuver.modifier||""} ${s.name?"onto "+s.name:""}`.trim())};}
+async function geocode(q){
+ const base=ENV.VITE_GEOCODER_URL||"https://nominatim.openstreetmap.org";
+ const r=await fetch(`${base}/search?format=json&limit=6&countrycodes=ph&viewbox=121.0,14.45,121.7,13.95&bounded=1&q=${encodeURIComponent(q)}`);
+ return (await r.json()).map(p=>({id:"osm"+p.place_id,name:p.display_name.split(",")[0],town:p.display_name.split(",")[1]?.trim()||"",lat:+p.lat,lng:+p.lon,cats:[],desc:p.display_name,external:true}));}
+
+return {route,geocode};})();
+__m["services/mapProvider"]=(()=>{
+// Map provider adapter (Leaflet + OSM). Swap tiles/provider here or via VITE_TILE_URL.
+
+const LAGUNA=L.latLngBounds([13.95,121.0],[14.45,121.7]);
+function createMap(id,onTileError){
+ const node=document.getElementById(id);
+ const m=L.map(node,{zoomControl:false,minZoom:9,maxBounds:LAGUNA.pad(1.5)}).setView([14.17,121.33],10); // valid view even if the container is 0px tall at startup
+ let warned=false;
+ L.tileLayer(ENV.VITE_TILE_URL||"https://tile.openstreetmap.org/{z}/{x}/{y}.png",{attribution:"© OpenStreetMap contributors",maxZoom:19})
+  .on("tileerror",()=>{if(!warned){warned=true;onTileError&&onTileError();}}).addTo(m);
+ let fitted=false;
+ const sized=()=>{if(node.clientWidth>0&&node.clientHeight>0){m.invalidateSize();if(!fitted){fitted=true;m.fitBounds(LAGUNA);}}};
+ window.ResizeObserver?new ResizeObserver(sized).observe(node):setTimeout(sized,300);
+ window.addEventListener("load",sized);
+ return m;}
+
+return {createMap,LAGUNA};})();
+__m["main"]=(()=>{
+
+const {repo,DEMO}=__m["services/repo"];const {route,geocode}=__m["services/routing"];
+const {createMap,LAGUNA}=__m["services/mapProvider"];const {MODES}=__m["data/transportModes"];
+const $=s=>document.querySelector(s),esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const S={loc:null,cat:"all",q:"",places:[],cats:[],reels:[],saved:new Set(),ext:[],likes:new Set(JSON.parse(localStorage.getItem("lagunago.likes")||"[]"))};
+const TABS=[["map","🗺️","Map"],["discover","🔎","Discover"],["reels","🎬","Reels"],["saved","❤️","Saved"],["profile","👤","Profile"]];
+const find=id=>S.places.find(p=>p.id===id)||S.ext.find(p=>p.id===id);
+const km=(a,b)=>{const r=Math.PI/180,x=(b.lat-a.lat)*r,y=(b.lng-a.lng)*r,h=Math.sin(x/2)**2+Math.cos(a.lat*r)*Math.cos(b.lat*r)*Math.sin(y/2)**2;return 12742*Math.asin(Math.sqrt(h));};
+const dist=p=>{if(!S.loc)return"";const d=km(S.loc,p);return d<1?Math.round(d*1000)+" m":d.toFixed(1)+" km";};
+const byNear=a=>S.loc?[...a].sort((x,y)=>km(S.loc,x)-km(S.loc,y)):[...a];
+const demoTag=d=>d?'<span class="demo">DEMO DATA</span>':"";
+const catOf=p=>p.cats.map(i=>S.cats.find(c=>c.id===i)).filter(Boolean);
+let mt;const msg=t=>{const m=$("#msg");m.textContent=t;m.hidden=false;clearTimeout(mt);mt=setTimeout(()=>m.hidden=true,4500);};
+// ---- map
+const map=createMap("map",()=>msg("Map tiles could not load. Check your connection; OpenStreetMap blocks requests that carry no referrer.")),pins=L.layerGroup().addTo(map),line=L.layerGroup().addTo(map),ring=L.layerGroup().addTo(map);let me;
+const drawPins=a=>{pins.clearLayers();a.forEach(p=>L.circleMarker([p.lat,p.lng],{radius:9,color:"#fff",weight:2,fillColor:"#d6402f",fillOpacity:1}).on("click",()=>showOnMap(p.id)).addTo(pins));};
+const sheetH=()=>document.documentElement.style.setProperty("--sheet",$("#sheet").hidden?"0px":$("#sheet").offsetHeight+"px");
+function locate(){const b=$("#locate");if(!navigator.geolocation)return msg("This device has no GPS support.");
+ if(!isSecureContext)return msg("GPS needs HTTPS (or localhost).");b.classList.add("busy");
+ const ok=p=>{b.classList.remove("busy");S.loc={lat:p.coords.latitude,lng:p.coords.longitude};me&&me.remove();
+  me=L.layerGroup([L.circle([S.loc.lat,S.loc.lng],{radius:p.coords.accuracy,stroke:false,fillColor:"#0b5563",fillOpacity:.12}),L.circleMarker([S.loc.lat,S.loc.lng],{radius:8,color:"#fff",weight:3,fillColor:"#0b5563",fillOpacity:1})]).addTo(map);
+  if(LAGUNA.contains(S.loc))map.flyTo([S.loc.lat,S.loc.lng],15,{duration:.8});else{msg("You're outside Laguna, so we're showing Laguna.");map.flyToBounds(LAGUNA);}renderAll();};
+ const bad=e=>{b.classList.remove("busy");msg(e.code===1?"Location is blocked. Allow it in your browser settings.":"Couldn't get your location. Try again outdoors or with Wi-Fi on.");};
+ navigator.geolocation.getCurrentPosition(ok,e=>e.code===1?bad(e):navigator.geolocation.getCurrentPosition(ok,bad,{enableHighAccuracy:false,timeout:15000,maximumAge:60000}),{enableHighAccuracy:true,timeout:8000,maximumAge:30000});}
+// single entry points used by Map, Discover, Saved and Reels
+function showOnMap(id){const p=find(id);if(!p)return;switchTab("map");map.invalidateSize();ring.clearLayers();
+ L.circleMarker([p.lat,p.lng],{radius:17,color:"#f5b52e",weight:4,fill:false}).addTo(ring);map.flyTo([p.lat,p.lng],15,{duration:.8});sheet(placeSheet(p));}
+function startDirections(id){const p=find(id);if(!p)return;switchTab("map");map.invalidateSize();ring.clearLayers();L.circleMarker([p.lat,p.lng],{radius:17,color:"#f5b52e",weight:4,fill:false}).addTo(ring);map.flyTo([p.lat,p.lng],14,{duration:.8});
+ sheet(`<h2>Go to ${esc(p.name)}</h2><p class="meta">How are you getting there?</p><div class="row"><button class="pri" data-a="go" data-m="driving" data-id="${id}">🚗 Drive</button><button class="pri" data-a="go" data-m="walking" data-id="${id}">🚶 Walk</button><button class="pri" data-a="go" data-m="commute" data-id="${id}">🚌 Commute</button></div>`);}
+function sheet(h){const s=$("#sheet");s.hidden=!h;s.innerHTML=h?`<div class="grab" data-a="close"></div>${h}`:"";s.style.animation="none";s.offsetWidth;s.style.animation="";requestAnimationFrame(sheetH);}
+function placeSheet(p){return `${p.photo?`<div class="ph"><img src="${esc(p.photo)}" alt=""></div>`:`<div class="ph">${catOf(p)[0]?.emoji||"📍"}</div>`}<h2>${esc(p.name)} ${demoTag(p.demo)}</h2>
+<p class="meta">${esc(p.town)}${p.town?", ":""}Laguna${S.loc?` · <span class="km">${dist(p)}</span>`:""}</p><div class="tags">${catOf(p).map(c=>`<span>${c.emoji} ${c.label}</span>`).join("")}</div><p>${esc(p.desc)}</p>
+<div class="row"><button class="pri" data-a="dir" data-id="${p.id}">Get Directions</button><button data-a="save" data-id="${p.id}">${S.saved.has(p.id)?"❤️ Saved":"🤍 Save"}</button></div>`;}
+async function go(id,mode){const p=find(id);if(mode==="commute")return commute(p);
+ if(!S.loc)return sheet(`<h2>Where are you now?</h2><p class="meta">Turn on location so Laguna Go can start your route.</p><button class="pri" data-a="locate">Use my location</button>`);
+ sheet("<p>Finding the best route…</p>");try{const r=await route(mode,S.loc,p);line.clearLayers();const g=L.geoJSON(r.geometry,{style:{color:"#0b5563",weight:6,opacity:.9}}).addTo(line);map.flyToBounds(g.getBounds(),{padding:[60,60],duration:.8});
+ sheet(`<h2>${mode==="driving"?"🚗":"🚶"} ${r.min} min <small class="meta">· ${r.km.toFixed(1)} km</small></h2><p class="meta">To ${esc(p.name)}</p><ol>${r.steps.map(s=>`<li>${esc(s)}</li>`).join("")}</ol><button data-a="clear">Clear route</button>`);}
+ catch(e){sheet(`<h2>No route</h2><p>${esc(e.message)}. Check your connection or the routing URL in .env.</p>`);}}
+async function commute(p,from){const towns=[...new Set(S.places.map(x=>x.town))].sort(),f=from||(S.loc?byNear(S.places)[0].town:towns[0]),g=await repo.commuteGuide(f,p.town);
+ const v=(x,u)=>x==null?"not available":x+u,pt=(l,x)=>x?`<p>${l}: ${esc(x.name)}</p>`:"";
+ sheet(`<h2>Commute Directions</h2><label class="meta">FROM<select data-a="from" data-id="${p.id}">${towns.map(t=>`<option ${t===f?"selected":""}>${esc(t)}</option>`).join("")}</select></label><p><b>TO</b> ${esc(p.name)}, ${esc(p.town)}</p>
+ ${g?`${g.demo?'<p class="warn">DEMO DATA: placeholder steps, not a real route.</p>':""}<p class="meta">${g.verified?"Verified data":"Unverified"} · Total time: ${v(g.totalMinutes," min")} · Total fare: ${v(g.totalFare,"")}</p>
+ <ol class="tl">${g.segments.map((s,i,a)=>{const m=MODES[s.mode]||MODES.unknown,tr=s.mode!=="walk"&&a.slice(0,i).some(x=>x.mode!=="walk");
+  return `<li class="${s.mode}">${tr?'<p class="tr">Transfer</p>':""}<b>${m.icon} ${m.label}</b><p>${esc(s.note||"")}</p>${pt("Pickup",s.from)}${pt("Drop-off",s.to)}${s.landmark?`<p>Landmark: ${esc(s.landmark)}</p>`:""}<p class="meta">Time: ${v(s.minutes," min")} · Fare: ${v(s.fare,"")}</p></li>`}).join("")}</ol>`
+ :`<p class="empty">No verified commute data for ${esc(f)} → ${esc(p.town)} yet. Add it in <code>src/data/transport.js</code> or your database.</p>`}
+ <div class="row"><button data-a="go" data-m="driving" data-id="${p.id}">🚗 Drive instead</button><button data-a="go" data-m="walking" data-id="${p.id}">🚶 Walk instead</button></div>`);}
+// ---- search
+const sugg=$("#sugg");
+$("#search input").addEventListener("input",e=>{const q=e.target.value.trim().toLowerCase();if(!q){sugg.hidden=true;return;}
+ const l=S.places.filter(p=>(p.name+" "+p.town).toLowerCase().includes(q)).slice(0,5);
+ sugg.innerHTML=l.map(p=>`<li><button data-a="map" data-id="${p.id}">${esc(p.name)}<small>${esc(p.town)}</small></button></li>`).join("")+`<li><button data-a="web" data-q="${esc(e.target.value.trim())}">🔎 Search all of Laguna for “${esc(e.target.value.trim())}”</button></li>`;sugg.hidden=false;});
+async function webSearch(q){sugg.hidden=true;if(!q)return;msg("Searching…");try{S.ext=await geocode(q);}catch{return msg("Search service unreachable. Check your connection.");}
+ if(!S.ext.length)return msg("Nothing found in Laguna. Try another spelling.");$("#msg").hidden=true;drawPins(S.ext);map.flyToBounds(S.ext.map(p=>[p.lat,p.lng]),{padding:[60,60],maxZoom:15});
+ sheet(`<h2>Results</h2>${S.ext.map(p=>`<button class="res" style="width:100%;text-align:left;margin:4px 0" data-a="map" data-id="${p.id}">${esc(p.name)}<small class="meta"> ${esc(p.town)}</small></button>`).join("")}<button data-a="clear">Back to Laguna places</button>`);}
+$("#search").onsubmit=e=>{e.preventDefault();webSearch(new FormData(e.target).get("q").trim());};
+// ---- views
+function card(p){return `<article class="card"><div class="ph">${p.photo?`<img loading="lazy" src="${esc(p.photo)}" alt="">`:catOf(p)[0]?.emoji||"📍"}</div><div class="cb"><h3>${esc(p.name)}</h3>
+<p class="meta">${esc(p.town)}${catOf(p).map(c=>" · "+c.label).join("")} ${S.loc?`<span class="km">${dist(p)}</span>`:""} ${demoTag(p.demo)}</p><p>${esc(p.desc)}</p>
+<div class="row"><button data-a="map" data-id="${p.id}">View on Map</button><button class="pri" data-a="dir" data-id="${p.id}">Get Directions</button><button style="flex:0" data-a="save" data-id="${p.id}" aria-label="Save">${S.saved.has(p.id)?"❤️":"🤍"}</button></div></div></article>`;}
+const sec=(t,a)=>a.length?`<h2>${t}</h2><div class="grid">${a.map(card).join("")}</div>`:"";
+function discover(){$("#v-discover").innerHTML=`<header><h1>Tuklasin ang Laguna</h1><p>Places to explore ${demoTag(DEMO)}</p><input id="dq" value="${esc(S.q)}" placeholder="Search places, towns" aria-label="Search places"></header>
+ <div class="chips" id="chips"></div><div id="dbody"></div>`;$("#dq").oninput=e=>{S.q=e.target.value;dbody();};dbody();}
+function dbody(){$("#chips").innerHTML=`<button class="${S.cat==="all"?"on":""}" data-a="cat" data-id="all">All</button>`+S.cats.map(c=>`<button class="${S.cat===c.id?"on":""}" data-a="cat" data-id="${c.id}">${c.emoji} ${c.label}</button>`).join("");
+ const q=S.q.toLowerCase(),l=S.places.filter(p=>(S.cat==="all"||p.cats.includes(S.cat))&&(!q||(p.name+p.town+p.desc).toLowerCase().includes(q))),plain=S.cat!=="all"||q;
+ $("#dbody").innerHTML=plain?(l.length?sec(S.loc?"Closest first":"Results",byNear(l)):`<p class="empty">No verified places here yet. Real listings will appear as they're added.</p>`)
+ :(S.loc?"":`<div class="banner"><span>Turn on location to see what's near you.</span><button class="pri" data-a="locate">Use location</button></div>`)+sec("Featured",l.filter(p=>p.featured))+(S.loc?sec("Near You",byNear(l).slice(0,4)):"")+sec(S.loc?"Popular Near You":"Popular",byNear(l).sort((a,b)=>b.popularity-a.popularity).slice(0,4));}
+const io=new IntersectionObserver(es=>es.forEach(e=>{const on=e.isIntersecting&&e.intersectionRatio>=.6,v=e.target.querySelector("video");e.target.classList.toggle("playing",on);if(v)on?v.play().catch(()=>{}):v.pause();}),{root:$("#v-reels"),threshold:[0,.6]});
+function reels(){const r=S.reels.length?(S.loc?[...S.reels].sort((a,b)=>km(S.loc,find(a.placeId))-km(S.loc,find(b.placeId))):S.reels):[];
+ $("#v-reels").innerHTML=r.length?r.map(r=>{const p=find(r.placeId);return `<article class="reel"><div class="stage" data-a="tap">${r.videoUrl?`<video src="${esc(r.videoUrl)}" ${r.poster?`poster="${esc(r.poster)}"`:""} loop muted playsinline></video>`:`<div class="pauseico">⏸</div>`}</div>
+ ${r.videoUrl?"":`<div class="bar"><i></i></div><span class="demo pill">DEMO VIDEO · placeholder</span>`}<div class="ov"><h3>${esc(r.title)}</h3><p class="meta">${esc(r.creator)}</p><p>${esc(r.desc)}</p>
+ <button class="loc" data-a="map" data-id="${r.placeId}">📍 ${esc(p?.name)}, ${esc(p?.town)}${S.loc&&p?" · "+dist(p):""}</button>
+ <div class="row"><button data-a="like" data-id="${r.id}">${S.likes.has(r.id)?"♥ Liked":"♡ Like"}</button><button data-a="save" data-id="${r.placeId}">${S.saved.has(r.placeId)?"❤️ Saved":"🤍 Save"}</button><button data-a="share" data-id="${r.id}">Share</button></div>
+ <div class="row"><button data-a="map" data-id="${r.placeId}">View Location</button><button class="pri" data-a="dir" data-id="${r.placeId}">Get Directions</button></div></div></article>`}).join(""):`<p class="empty" style="color:#fff">No reels yet.</p>`;
+ document.querySelectorAll(".reel").forEach(el=>io.observe(el));}
+function saved(){const l=S.places.filter(p=>S.saved.has(p.id));$("#v-saved").innerHTML=`<header><h1>Saved</h1><p>Your places</p></header>${l.length?`<div class="grid">${l.map(card).join("")}</div>`:'<p class="empty">Tap 🤍 on any place to keep it here.</p>'}`;}
+function profile(){$("#v-profile").innerHTML=`<header><h1>Profile</h1><p>Guest on this device</p></header><div class="pad"><p>Location: ${S.loc?"on. It stays on this device and is never shared with other users.":"off."}</p><button data-a="locate">Use my location</button><p class="meta">${DEMO?"Demo data is on (VITE_USE_DEMO_DATA).":"Demo data is off."} Accounts and cross-device sync need a backend.</p></div>`;}
+function renderAll(){drawPins(S.places);discover();reels();saved();profile();}
+function switchTab(t){TABS.forEach(([id])=>$("#v-"+id).hidden=id!==t);document.querySelectorAll("#nav button").forEach(b=>b.classList.toggle("on",b.dataset.t===t));if(t!=="map")sheet("");else map.invalidateSize();}
+// ---- events
+document.addEventListener("click",async e=>{if(!e.target.closest("#top"))sugg.hidden=true;const b=e.target.closest("[data-t],[data-a]");if(!b)return;const{t,a,id,m,q}=b.dataset;
+ if(t)return switchTab(t);
+ if(a==="close")sheet("");if(a==="clear"){line.clearLayers();ring.clearLayers();drawPins(S.places);sheet("");}
+ if(a==="cat"){S.cat=id;dbody();}if(a==="map")showOnMap(id);if(a==="dir")startDirections(id);if(a==="go")go(id,m);if(a==="locate"){switchTab("map");locate();}if(a==="web")webSearch(q);
+ if(a==="save"){S.saved=await repo.toggleSaved(id);discover();saved();reels();if(!$("#sheet").hidden&&find(id))sheet(placeSheet(find(id)));}
+ if(a==="like"){S.likes.has(id)?S.likes.delete(id):S.likes.add(id);localStorage.setItem("lagunago.likes",JSON.stringify([...S.likes]));const y=$("#v-reels").scrollTop;reels();$("#v-reels").scrollTop=y;}
+ if(a==="tap"){const r=b.closest(".reel"),v=r.querySelector("video");v?(v.paused?v.play():v.pause()):r.classList.toggle("paused");}
+ if(a==="share"){const r=S.reels.find(r=>r.id===id),d={title:r.title,url:location.href};navigator.share?navigator.share(d).catch(()=>{}):navigator.clipboard?.writeText(d.url).then(()=>msg("Link copied"));}});
+document.addEventListener("change",e=>{const s=e.target;if(s.dataset.a==="from")commute(find(s.dataset.id),s.value);});
+$("#locate").onclick=locate;$("#home").onclick=()=>{ring.clearLayers();map.flyToBounds(LAGUNA,{duration:.8});};
+$("#nav").innerHTML=TABS.map(([id,i,l])=>`<button data-t="${id}"><span>${i}</span>${l}</button>`).join("");
+(async()=>{[S.cats,S.places,S.reels,S.saved]=await Promise.all([repo.categories(),repo.places(),repo.reels(),repo.saved()]);renderAll();switchTab("map");})();
+
+return {};})();
+window.__lg=1;
+</script></body></html>
