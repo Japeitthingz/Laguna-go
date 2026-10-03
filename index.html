@@ -49,13 +49,21 @@ section h2{padding:0 14px;margin-top:18px}.grid{display:grid;gap:12px;padding:0 
 .ov button{background:#ffffff26;color:#fff;border-color:#fff6;backdrop-filter:blur(6px)}.ov .pri{background:var(--jeep);border-color:var(--jeep)}.ov .loc{background:none;border:0;padding:4px 0;font-weight:600}
 .empty{padding:28px 20px;color:var(--mute);text-align:center}
 a.btn{display:inline-block;flex:1;padding:10px 14px;border:1.5px solid var(--lake);border-radius:12px;color:var(--lake);text-decoration:none;text-align:center;background:#fff}
+#navtop{position:absolute;z-index:800;top:0;left:0;right:0;display:flex;gap:14px;align-items:center;padding:calc(12px + env(safe-area-inset-top)) 16px 16px;background:var(--lake2);color:#fff;border-radius:0 0 22px 22px;box-shadow:0 6px 20px #0006}
+#navtop .arrow{font-size:46px}#navtop h2{margin:2px 0 0;padding:0;font-size:20px;color:#fff}#navtop b{font-size:28px}#navtop.warn{background:var(--jeep)}
+#navbot{position:absolute;z-index:800;left:0;right:0;bottom:0;background:#fff;padding:14px 16px calc(14px + env(safe-area-inset-bottom));border-radius:22px 22px 0 0;box-shadow:0 -6px 24px #0b556340}
+.st{display:flex;gap:14px;align-items:baseline;flex-wrap:wrap}.st b{font:700 28px "Bricolage Grotesque"}
+button.end{background:var(--jeep);border-color:var(--jeep);color:#fff}button.start{width:100%;font-size:20px;padding:14px;background:var(--jeep);border-color:var(--jeep);color:#fff;letter-spacing:.05em}
+#navmsg{position:absolute;z-index:810;left:12px;right:12px;top:calc(118px + env(safe-area-inset-top));background:var(--ink);color:#fff;padding:10px 14px;border-radius:12px}
+#recenter{position:absolute;z-index:810;left:50%;transform:translateX(-50%);bottom:160px;background:var(--lake);color:#fff;box-shadow:0 4px 14px #0b556360}
+#app.nav #nav,#app.nav #top,#app.nav .fabs{display:none}.dest{font-size:30px;text-align:center}
 </style></head><body><div id="app">
 <main><section id="v-map"><div id="map"></div>
 <div id="top"><form id="search"><span class="logo">Laguna<b>Go</b></span><input name="q" autocomplete="off" placeholder="Saan tayo sa Laguna?" aria-label="Search places"><button aria-label="Search online">Go</button></form><ul id="sugg" hidden></ul></div>
 <div class="fabs"><button id="home" aria-label="Show all of Laguna">Laguna</button><button id="locate" aria-label="My location">◎</button></div><div id="msg" hidden></div></section>
 <section id="v-discover" hidden></section><section id="v-reels" hidden></section>
 <section id="v-saved" hidden></section><section id="v-profile" hidden></section></main>
-<div id="sheet" hidden></div><nav id="nav"></nav></div><div id="boot" style="position:fixed;z-index:9999;top:0;left:0;right:0;background:#fde8b8;color:#400;font:13px system-ui;padding:6px" hidden></div><script>addEventListener("error",e=>{var b=document.getElementById("boot");b.hidden=false;b.textContent="Error: "+e.message});setTimeout(function(){if(!window.__lg){var b=document.getElementById("boot");b.hidden=false;b.textContent="Laguna Go did not start. Leaflet may be blocked or a script failed."}},6000)</script><script type="module">
+<div id="navtop" hidden></div><div id="navbot" hidden></div><div id="navmsg" hidden></div><button id="recenter" hidden>◎ Re-center</button><div id="sheet" hidden></div><nav id="nav"></nav></div><div id="boot" style="position:fixed;z-index:9999;top:0;left:0;right:0;background:#fde8b8;color:#400;font:13px system-ui;padding:6px" hidden></div><script>addEventListener("error",e=>{var b=document.getElementById("boot");b.hidden=false;b.textContent="Error: "+e.message});setTimeout(function(){if(!window.__lg){var b=document.getElementById("boot");b.hidden=false;b.textContent="Laguna Go did not start. Leaflet may be blocked or a script failed."}},6000)</script><script type="module">
 import L from "https://cdn.jsdelivr.net/npm/leaflet@1.9.4/+esm";
 const ENV=window.LAGUNA_ENV||{};const __m={};
 __m["data/categories"]=(()=>{
@@ -150,14 +158,38 @@ const E=ENV,U={driving:E.VITE_OSRM_DRIVING_URL||"https://routing.openstreetmap.d
 async function route(mode,a,b){
  const r=await fetch(`${U[mode]}/route/v1/driving/${a.lng},${a.lat};${b.lng},${b.lat}?overview=full&geometries=geojson&steps=true`);
  const j=await r.json(); if(j.code!=="Ok")throw new Error("No route found");
- const x=j.routes[0];return{km:x.distance/1000,min:Math.round(x.duration/60),geometry:x.geometry,
-  steps:x.legs[0].steps.map(s=>`${s.maneuver.type} ${s.maneuver.modifier||""} ${s.name?"onto "+s.name:""}`.trim())};}
+ const x=j.routes[0];return{m:x.distance,sec:x.duration,km:x.distance/1000,min:Math.round(x.duration/60),geometry:x.geometry,coords:x.geometry.coordinates.map(([lng,lat])=>[lat,lng]),
+  steps:x.legs.flatMap(l=>l.steps).map(s=>({type:s.maneuver.type,modifier:s.maneuver.modifier,exit:s.maneuver.exit,name:s.name,dist:s.distance,dur:s.duration,loc:[s.maneuver.location[1],s.maneuver.location[0]]}))};}
 async function geocode(q){
  const base=ENV.VITE_GEOCODER_URL||"https://nominatim.openstreetmap.org";
  const r=await fetch(`${base}/search?format=json&limit=6&countrycodes=ph&viewbox=121.0,14.45,121.7,13.95&bounded=1&q=${encodeURIComponent(q)}`);
  return (await r.json()).map(p=>({id:"osm"+p.place_id,name:p.display_name.split(",")[0],town:p.display_name.split(",")[1]?.trim()||"",lat:+p.lat,lng:+p.lon,cats:[],desc:p.display_name,external:true}));}
 
 return {route,geocode};})();
+__m["services/navigation"]=(()=>{
+// Pure navigation logic: formatting, route snapping, progress. No simulation; callers pass real GPS fixes.
+const K=111320;
+const fmtDist=m=>m<1000?Math.max(10,Math.round(m/10)*10)+" m":(m/1000).toFixed(1)+" km";
+const fmtMin=s=>{const m=Math.max(1,Math.round(s/60));return m<60?m+" min":Math.floor(m/60)+" h "+(m%60)+" min";};
+const eta=s=>new Date(Date.now()+s*1000).toLocaleTimeString([],{hour:"numeric",minute:"2-digit"});
+const ARR={"uturn":"↩️","sharp right":"↘️","right":"➡️","slight right":"↗️","straight":"⬆️","slight left":"↖️","left":"⬅️","sharp left":"↙️"};
+const arrow=s=>s.type==="arrive"?"🎯":ARR[s.modifier]||"⬆️";
+const instruction=s=>{const on=s.name?` onto ${s.name}`:"",m=s.modifier||"";
+ switch(s.type){case"depart":return"Start"+(s.name?` on ${s.name}`:"");case"arrive":return"Arrive at your destination";
+ case"roundabout":case"rotary":return"Take the roundabout"+(s.exit?`, exit ${s.exit}`:"")+on;
+ case"merge":return`Merge ${m}${on}`;case"fork":return`Keep ${m}${on}`;case"on ramp":case"off ramp":return`Take the ramp${on}`;
+ case"new name":case"continue":return"Continue"+on;default:return m==="straight"||!m?"Continue"+on:`Turn ${m}${on}`;}};
+const seg=(a,b)=>[(b[1]-a[1])*Math.cos(a[0]*Math.PI/180)*K,(b[0]-a[0])*110540];
+function snap(r,p,from=0){let best={d:1e12,along:0,i:from};const c=r.coords;
+ for(let i=from;i<c.length-1;i++){const A=seg(p,c[i]),B=seg(p,c[i+1]),dx=B[0]-A[0],dy=B[1]-A[1],L2=dx*dx+dy*dy||1,t=Math.max(0,Math.min(1,-(A[0]*dx+A[1]*dy)/L2)),d=Math.hypot(A[0]+t*dx,A[1]+t*dy);
+  if(d<best.d)best={d,along:r.cum[i]+t*Math.sqrt(L2),i};}return best;}
+function prepare(r){const c=r.coords,cum=[0];for(let i=1;i<c.length;i++){const[x,y]=seg(c[i-1],c[i]);cum.push(cum[i-1]+Math.hypot(x,y));}
+ r.cum=cum;r.total=cum[cum.length-1]||1;let from=0;r.steps.forEach(s=>{const q=snap(r,s.loc,from);s.along=q.along;from=q.i;});return r;}
+function progress(r,pos){const q=snap(r,[pos.lat,pos.lng]),remM=Math.max(0,r.total-q.along);
+ let i=r.steps.findIndex((s,k)=>k>0&&s.along>q.along-15);if(i<0)i=r.steps.length-1;const step=r.steps[i];
+ return{off:q.d,remM,remSec:r.sec*remM/r.total,step,toNext:Math.max(0,step.along-q.along)};}
+
+return {prepare,progress,instruction,arrow,fmtDist,fmtMin,eta};})();
 __m["services/mapProvider"]=(()=>{
 // Map provider adapter (Leaflet + OSM). Swap tiles/provider here or via VITE_TILE_URL.
 
@@ -178,7 +210,7 @@ return {createMap,LAGUNA};})();
 __m["main"]=(()=>{
 
 const {repo,DEMO}=__m["services/repo"];const {route,geocode}=__m["services/routing"];
-const {createMap,LAGUNA}=__m["services/mapProvider"];const {MODES}=__m["data/transportModes"];
+const {createMap,LAGUNA}=__m["services/mapProvider"];const {prepare,progress,instruction,arrow,fmtDist,fmtMin,eta}=__m["services/navigation"];const {MODES}=__m["data/transportModes"];
 const $=s=>document.querySelector(s),esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const S={loc:null,cat:"all",q:"",places:[],cats:[],reels:[],saved:new Set(),ext:[],likes:new Set(JSON.parse(localStorage.getItem("lagunago.likes")||"[]"))};
 const TABS=[["map","🗺️","Map"],["discover","🔎","Discover"],["reels","🎬","Reels"],["saved","❤️","Saved"],["profile","👤","Profile"]];
@@ -215,9 +247,11 @@ function placeSheet(p){return `${p.photo?`<div class="ph"><img src="${esc(p.phot
 <div class="row"><button class="pri" data-a="dir" data-id="${p.id}">Get Directions</button><button data-a="save" data-id="${p.id}">${S.saved.has(p.id)?"❤️ Saved":"🤍 Save"}</button><a class="btn" href="${mapsUrl(p)}" target="_blank" rel="noopener">Open in Maps</a></div>`;}
 async function go(id,mode){const p=find(id);if(mode==="commute")return commute(p);
  if(!S.loc)return sheet(`<h2>Where are you now?</h2><p class="meta">Turn on location so Laguna Go can start your route.</p><button class="pri" data-a="locate">Use my location</button>`);
- sheet("<p>Finding the best route…</p>");if(!await ensureCoords(p))return sheet(`<h2>Can't place ${esc(p.name)} on the map</h2><p>Open it in your Maps app instead.</p><a class="btn" href="${mapsUrl(p)}" target="_blank" rel="noopener">Open in Maps</a>`);try{const r=await route(mode,S.loc,p);line.clearLayers();const g=L.geoJSON(r.geometry,{style:{color:"#0b5563",weight:6,opacity:.9}}).addTo(line);map.flyToBounds(g.getBounds(),{padding:[60,60],duration:.8});
- sheet(`<h2>${mode==="driving"?"🚗":"🚶"} ${r.min} min <small class="meta">· ${r.km.toFixed(1)} km</small></h2><p class="meta">To ${esc(p.name)}</p><ol>${r.steps.map(s=>`<li>${esc(s)}</li>`).join("")}</ol><button data-a="clear">Clear route</button>`);}
- catch(e){sheet(`<h2>No route</h2><p>${esc(e.message)}. Check your connection or the routing URL in .env.</p>`);}}
+ sheet("<p>Finding the best route…</p>");if(!await ensureCoords(p))return sheet(`<h2>Can't place ${esc(p.name)} on the map</h2><p>Open it in your Maps app instead.</p><a class="btn" href="${mapsUrl(p)}" target="_blank" rel="noopener">Open in Maps</a>`);
+ try{const r=await route(mode,S.loc,p);N.pend={r,mode,p};drawLine(r,p);map.flyToBounds(L.latLngBounds(r.coords),{padding:[60,60],duration:.8});
+ sheet(`<h2>${mode==="driving"?"🚗":"🚶"} ${fmtMin(r.sec)} <small class="meta">· ${fmtDist(r.m)}</small></h2><p class="meta">To ${esc(p.name)} · Arrive about ${eta(r.sec)} (estimate, no live traffic)</p><button class="pri start" data-a="start">START</button>
+ <details><summary class="meta">Directions list</summary><ol>${r.steps.map(x=>`<li>${esc(instruction(x))} <small class="meta">${fmtDist(x.dist)}</small></li>`).join("")}</ol></details><button data-a="clear">Cancel</button>`);}
+ catch(e){sheet(`<h2>No route</h2><p>${esc(e.message)}. Check your connection or the routing URL.</p>`);}}
 async function commute(p,from){const towns=[...new Set(S.places.map(x=>x.town))].sort(),f=from||(S.loc?byNear(S.places)[0].town:towns[0]),g=await repo.commuteGuide(f,p.town);
  const v=(x,u)=>x==null?"not available":x+u,pt=(l,x)=>x?`<p>${l}: ${esc(x.name)}</p>`:"";
  sheet(`<h2>Commute Directions</h2><label class="meta">FROM<select data-a="from" data-id="${p.id}">${towns.map(t=>`<option ${t===f?"selected":""}>${esc(t)}</option>`).join("")}</select></label><p><b>TO</b> ${esc(p.name)}, ${esc(p.town)}</p>
@@ -258,17 +292,45 @@ function saved(){const l=S.places.filter(p=>S.saved.has(p.id));$("#v-saved").inn
 function profile(){$("#v-profile").innerHTML=`<header><h1>Profile</h1><p>Guest on this device</p></header><div class="pad"><p>Location: ${S.loc?"on. It stays on this device and is never shared with other users.":"off."}</p><button data-a="locate">Use my location</button><p class="meta">${DEMO?"Demo data is on (VITE_USE_DEMO_DATA).":"Demo data is off."} Accounts and cross-device sync need a backend.</p></div>`;}
 function renderAll(){drawPins(S.places);discover();reels();saved();profile();}
 function switchTab(t){TABS.forEach(([id])=>$("#v-"+id).hidden=id!==t);document.querySelectorAll("#nav button").forEach(b=>b.classList.toggle("on",b.dataset.t===t));if(t!=="map")sheet("");else map.invalidateSize();}
+// ---- real-time navigation (watchPosition only; marker moves only on real GPS fixes)
+const N={st:"idle",follow:true,off:0,last:0,note:"",acc:0};
+function drawLine(r,p){line.clearLayers();L.polyline(r.coords,{color:"#0b5563",weight:7,opacity:.9}).addTo(line);L.marker([p.lat,p.lng],{icon:L.divIcon({html:"🎯",className:"dest",iconSize:[30,30]})}).addTo(line);}
+function setMe(l,acc){me&&me.remove();me=L.layerGroup([L.circle([l.lat,l.lng],{radius:acc,stroke:false,fillColor:"#0b5563",fillOpacity:.12}),L.circleMarker([l.lat,l.lng],{radius:9,color:"#fff",weight:3,fillColor:"#0b5563",fillOpacity:1})]).addTo(map);}
+function navMsg(t){const m=$("#navmsg");m.textContent=t||"";m.hidden=!t;}
+function navUI(g){const ic=N.mode==="driving"?"🚗 Driving":"🚶 Walking";
+ $("#navtop").innerHTML=g?`<div class="arrow">${arrow(g.step)}</div><div><b>${fmtDist(g.toNext)}</b><h2>${esc(instruction(g.step))}</h2></div>`:`<div class="arrow">📡</div><div><h2>Waiting for GPS…</h2></div>`;
+ $("#navbot").innerHTML=`<div class="st">${g?`<b>${fmtMin(g.remSec)}</b><span>${fmtDist(g.remM)}</span><span>ETA ${eta(g.remSec)}</span>`:"<span>Waiting for your first GPS position</span>"}</div><div class="row"><span style="flex:2;align-self:center">${ic}</span><button class="end" data-a="endnav">End Navigation</button></div>`;}
+function startNav(){const q=N.pend;if(!q)return;N.r=prepare(q.r);N.mode=q.mode;N.p=q.p;N.st="active";N.follow=true;N.off=0;N.note="";sheet("");$("#app").classList.add("nav");$("#navtop").hidden=$("#navbot").hidden=false;$("#recenter").hidden=true;navUI(null);
+ if(!navigator.geolocation)return navMsg("GPS isn't available on this device.");
+ N.w=navigator.geolocation.watchPosition(onFix,onGpsErr,{enableHighAccuracy:true,maximumAge:0,timeout:20000});
+ navigator.wakeLock?.request("screen").then(l=>N.wl=l).catch(()=>{});}
+function onFix(p){const c=p.coords;S.loc={lat:c.latitude,lng:c.longitude};N.acc=c.accuracy;setMe(S.loc,c.accuracy);
+ if(km(S.loc,N.p)*1000<=Math.max(30,Math.min(c.accuracy,60)))return arrive();
+ const g=progress(N.r,S.loc);
+ if(g.off>Math.max(60,c.accuracy*1.5)&&c.accuracy<100){if(++N.off>=2)offRoute();}else if(N.off){N.off=0;if(N.note==="off"){N.note="";$("#navtop").classList.remove("warn");}}
+ navMsg(N.note==="off"?"You're off route":N.note||(c.accuracy>50?`Weak GPS signal (±${Math.round(c.accuracy)} m)`:""));navUI(g);
+ if(N.follow)map.setView([S.loc.lat,S.loc.lng],Math.max(map.getZoom(),16),{animate:false});}
+async function offRoute(){N.note="off";navMsg("You're off route");$("#navtop").classList.add("warn");if(N.busy||Date.now()-N.last<15000)return;N.busy=true;N.last=Date.now();
+ try{const r=await route(N.mode,S.loc,N.p);N.r=prepare(r);drawLine(r,N.p);N.off=0;N.note="";$("#navtop").classList.remove("warn");navMsg("Route updated");}
+ catch{navMsg("You're off route. Could not recalculate (no connection to the routing service).");}N.busy=false;}
+function onGpsErr(e){if(e.code===1){navigator.geolocation.clearWatch(N.w);N.note="Location permission denied. On iPhone: Settings > Privacy & Security > Location Services > Safari Websites > While Using.";}
+ else N.note=e.code===2?"GPS unavailable right now. Waiting for a signal…":"GPS timed out. Still trying…";navMsg(N.note);}
+function stopWatch(){N.w!=null&&navigator.geolocation.clearWatch(N.w);N.w=null;N.wl?.release?.();}
+function arrive(){stopWatch();N.st="arrived";$("#navtop").hidden=true;navMsg("");$("#recenter").hidden=true;
+ $("#navbot").innerHTML=`<h1 style="margin:0">YOU'VE ARRIVED</h1><p>${esc(N.p.name)}</p><button class="end" data-a="endnav" style="width:100%">End Navigation</button>`;}
+function endNav(){stopWatch();N.st="idle";$("#app").classList.remove("nav");$("#navtop").hidden=$("#navbot").hidden=$("#navmsg").hidden=$("#recenter").hidden=true;$("#navtop").classList.remove("warn");line.clearLayers();ring.clearLayers();sheet("");switchTab("map");}
+map.on("dragstart",()=>{if(N.st==="active"){N.follow=false;$("#recenter").hidden=false;}});
 // ---- events
 document.addEventListener("click",async e=>{if(!e.target.closest("#top"))sugg.hidden=true;const b=e.target.closest("[data-t],[data-a]");if(!b)return;const{t,a,id,m,q}=b.dataset;
  if(t)return switchTab(t);
  if(a==="close")sheet("");if(a==="clear"){line.clearLayers();ring.clearLayers();drawPins(S.places);sheet("");}
- if(a==="cat"){S.cat=id;dbody();}if(a==="map")showOnMap(id);if(a==="dir")startDirections(id);if(a==="go")go(id,m);if(a==="locate"){switchTab("map");locate();}if(a==="web")webSearch(q);
+ if(a==="cat"){S.cat=id;dbody();}if(a==="map")showOnMap(id);if(a==="dir")startDirections(id);if(a==="go")go(id,m);if(a==="start")startNav();if(a==="endnav")endNav();if(a==="locate"){switchTab("map");locate();}if(a==="web")webSearch(q);
  if(a==="save"){S.saved=await repo.toggleSaved(id);discover();saved();reels();if(!$("#sheet").hidden&&find(id))sheet(placeSheet(find(id)));}
  if(a==="like"){S.likes.has(id)?S.likes.delete(id):S.likes.add(id);localStorage.setItem("lagunago.likes",JSON.stringify([...S.likes]));const y=$("#v-reels").scrollTop;reels();$("#v-reels").scrollTop=y;}
  if(a==="tap"){const r=b.closest(".reel"),v=r.querySelector("video");v?(v.paused?v.play():v.pause()):r.classList.toggle("paused");}
  if(a==="share"){const r=S.reels.find(r=>r.id===id),d={title:r.title,url:location.href};navigator.share?navigator.share(d).catch(()=>{}):navigator.clipboard?.writeText(d.url).then(()=>msg("Link copied"));}});
 document.addEventListener("change",e=>{const s=e.target;if(s.dataset.a==="from")commute(find(s.dataset.id),s.value);});
-$("#locate").onclick=locate;$("#home").onclick=()=>{ring.clearLayers();map.flyToBounds(LAGUNA,{duration:.8});};
+$("#locate").onclick=locate;$("#recenter").onclick=()=>{N.follow=true;$("#recenter").hidden=true;S.loc&&map.setView([S.loc.lat,S.loc.lng],Math.max(map.getZoom(),16),{animate:false});};$("#home").onclick=()=>{ring.clearLayers();map.flyToBounds(LAGUNA,{duration:.8});};
 $("#nav").innerHTML=TABS.map(([id,i,l])=>`<button data-t="${id}"><span>${i}</span>${l}</button>`).join("");
 (async()=>{[S.cats,S.places,S.reels,S.saved]=await Promise.all([repo.categories(),repo.places(),repo.reels(),repo.saved()]);renderAll();switchTab("map");})();
 
