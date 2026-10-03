@@ -113,20 +113,60 @@ return {commuteGuides};})();
 __m["data/places"]=(()=>{
 // PRODUCTION places (owner-supplied). lat/lng null = no exact pin yet: the app finds one via map search on demand
 // and labels it approximate. Add lat/lng (and travel:{steps:[...],verifiedBy:"..."}) to make a place exact.
-const c=(name,address,town)=>({id:(name+"-"+town).toLowerCase().replace(/[^a-z0-9]+/g,"-"),name,town,address,cats:["cafes"],lat:null,lng:null,desc:address,popularity:0,featured:false,photo:null,travel:null});
+const P=(name,town,cats,address="",lat=null,lng=null,desc="",pinNote="")=>({id:(name+"-"+town).toLowerCase().replace(/[^a-z0-9]+/g,"-"),name,town,address,cats,lat,lng,desc:desc||address||town,pinNote,popularity:0,featured:false,photo:null,travel:null});
+const cafe=(n,a,t)=>P(n,t,["cafes"],a);
+const A=["activities"],H=["hotels"],AH=["activities","hotels"],S=["shopping"];
 const places=[
-c("Tricoffee","Lopez Ave.","Los Baños"),
-c("Cafeture","Agapita Rd., Batong Malake","Los Baños"),
-c("Ui Kape Coffee Shop","El Danda St. (near Iglesia Ni Cristo)","Los Baños"),
-c("Mokape Coffee","Umali Subd., Ruby St., Batong Malake","Los Baños"),
-c("Bypass Road Café","Bucal Bypass Rd.","Calamba"),
-c("CaféAlea Bistro","Bucal Bypass Rd.","Calamba"),
-c("Silong Café","L14 B16 Madison South Commercial","Calamba"),
-c("Bo's Coffee Calamba","National Highway, Bagong Kalsada St.","Calamba"),
-c("Café de Trèz Marias","0546 Sirang Lupa","Calamba"),
-c("Plaza Café","2nd Floor, 28 J. Rizal St.","Pagsanjan"),
-c("Bean There Slowbar","Phoenix Gas Station, Sitio 1, National Hwy","Pagsanjan"),
-c("Alberto's Heritage Cafe","Sitio Dao","Pagsanjan")];
+cafe("Tricoffee","Lopez Ave.","Los Baños"),cafe("Cafeture","Agapita Rd., Batong Malake","Los Baños"),cafe("Ui Kape Coffee Shop","El Danda St. (near Iglesia Ni Cristo)","Los Baños"),cafe("Mokape Coffee","Umali Subd., Ruby St., Batong Malake","Los Baños"),
+cafe("Bypass Road Café","Bucal Bypass Rd.","Calamba"),cafe("CaféAlea Bistro","Bucal Bypass Rd.","Calamba"),cafe("Silong Café","L14 B16 Madison South Commercial","Calamba"),cafe("Bo's Coffee Calamba","National Highway, Bagong Kalsada St.","Calamba"),cafe("Café de Trèz Marias","0546 Sirang Lupa","Calamba"),
+cafe("Plaza Café","2nd Floor, 28 J. Rizal St.","Pagsanjan"),cafe("Bean There Slowbar","Phoenix Gas Station, Sitio 1, National Hwy","Pagsanjan"),cafe("Alberto's Heritage Cafe","Sitio Dao","Pagsanjan"),
+// Activities
+P("The Fun Farm at Sta. Elena","Santa Rosa",A,"",14.26701,121.11078,"Animals, horseback riding, zipline."),
+P("Splash Island","Biñan",A,"Southwoods Ave.",14.32567,121.05772,"Water park."),
+P("EcoWonder Park","Calamba",A,"Real Rd.",null,null,"Limited hours, so confirm it's open before you go."),
+P("Cavinti Falls boat tour","Cavinti",A,"Cavinti Bridge I",14.262589,121.499961,"Boat tour to the falls.","Pin is the falls itself, not the boat launch."),
+P("Buruwisan Falls","Siniloan",A,"",14.45445,121.49058,"Trek and rappelling."),
+P("Hulugan Falls","Luisiana",A,"",null,null,"Trek."),
+P("Bukal Falls","Majayjay",A,"",14.10259,121.47422,"Trek and swim."),
+P("Ambon-Ambon Falls","Pangil",A,"",null,null,"River trek."),
+P("Tayak (TANAW) Park","Rizal",A,"",14.0721,121.4075,"900+ step climb.","Pin is the peak (Tayak Hill); the trail start is elsewhere."),
+P("Chandava Lakeside Resort","Cavinti",AH,"Mahipon",null,null,"Kayaking, camping."),
+P("Vonwelt Nature Farm","Magdalena",AH,"",14.237798,121.458327,"Wall climbing, golf cart. Has lodging."),
+P("Nuvali Park","Santa Rosa",A,"",null,null,"Boat rides, biking, picnics."),
+P("Hidden Valley Springs","Calauan",AH,"",14.09622,121.25846,"Pools and falls hike.","Pin may be off: sources give different locations."),
+P("Diwata Nature Resort","San Pablo",AH,"Malabanban Rd., San Pablo City",null,null,"Pools."),
+P("Sol y Viento Hot Springs","Calamba",A,"KM 55, Makiling Heights, Pansol",14.17266,121.17777,"Hot springs."),
+P("Casa Del Rio Resort","Pagsanjan",AH,"0125 R. Lava St.",14.2693,121.4588,"Pagsanjan Falls boat package."),
+P("Enchanted Kingdom","Santa Rosa",A,"",14.28086,121.09593,"Theme park."),
+P("Nuvali Xtreme Park","Santa Rosa",A,"Nuvali",null,null,""),
+P("Lake Caliraya","Cavinti/Lumban",A,"",14.2956,121.4979,"Kayak, wakeboarding.","Pin is the lake area; exact spot not confirmed."),
+// Hotels and resorts (others listed above under both)
+P("Sol y Viento Hotels and Resorts","Calamba",H,"KM 55, Makiling Heights, Pansol",14.17266,121.17777),
+P("California Beach Pansol","Calamba",H,"965 National Highway"),
+P("Yahweh Spring Retreat & Resort","Calamba",H,"137 Diwata St."),
+P("The Villas by Casa Tropica","Calamba",H,"Lot 24 Blk 1 Daang Kay Ganda St., Nayong Maharlika Village, Pansol"),
+P("Lotuspod","Bay",H,"Kalsadang Putol, Puypuy"),
+P("Seda Nuvali","Santa Rosa",H,"Evozone Ave., Nuvali Blvd., Don Jose"),
+P("Paseo Premiere Hotel","Santa Rosa",H,"Santa Rosa Business Park, Greenfield City"),
+P("Technopark Hotel","Santa Rosa",H,"Greenfield Pkwy, Don Jose"),
+P("El Cielito Hotel","Santa Rosa",H,"Sta. Cruz Rd., Santa Rosa-Tagaytay Rd."),
+P("Southpick Resort","Santa Rosa",H,"1 Tatlong Hari St."),
+P("Mountain Lake Resort","Cavinti",H,"The Hamptons Caliraya"),
+P("Haven by the Lake","Cavinti",H),
+P("Auravel Grande Hotel and Resort","San Pablo",H,"Brgy. San Francisco Calihan, San Pablo City"),
+// Shopping
+P("Southwoods Mall","Biñan",S,"Commerce Ave.",14.33145,121.05022),
+P("Vista Mall Sta. Rosa","Santa Rosa",S,"Santa Rosa-Tagaytay Rd., Don Jose",14.24422,121.05912),
+P("Biñan Public Market","Biñan",S,"",14.33808,121.0847),
+P("Santa Rosa City Public Market","Santa Rosa",S,"Rizal Blvd.",14.31694,121.115),
+P("Los Baños Public Market","Los Baños",S,"Villegas St.",14.18152,121.22468),
+P("Nagcarlan Public Market","Nagcarlan",S,"268 F. Urra",14.13689,121.41643),
+P("Luisiana Public Market","Luisiana",S,"Apuada",14.18347,121.51123),
+P("SM City Calamba","Calamba",S,"Real",14.20314,121.15564),
+P("SM City Santa Rosa","Santa Rosa",S,"",14.31334,121.09778),
+P("Ayala Malls Solenad","Santa Rosa",S,"Nuvali",14.23712,121.05719),
+P("Paseo de Santa Rosa","Santa Rosa",S,"",14.2494,121.0635),
+P("Robinsons Calamba","Calamba",S)];
 
 return {places};})();
 __m["data/transportModes"]=(()=>{
@@ -147,7 +187,7 @@ const K="lagunago.saved",user={id:"local",name:"Guest"};
 const repo={
  user:async()=>user,
  categories:async()=>categories,
- places:async()=>[...pp,...(DEMO?dp:[])],
+ places:async()=>{const n=new Set(pp.map(x=>x.name.toLowerCase()));return [...pp,...(DEMO?dp.filter(d=>!n.has(d.name.toLowerCase())):[])];},
  reels:async()=>DEMO?dr:[],
  commuteGuide:async(a,b)=>[...pg,...(DEMO?dg:[])].find(g=>g.fromTown===a&&g.toTown===b)||null,
  saved:async()=>new Set(JSON.parse(localStorage.getItem(K)||"[]")),
@@ -244,7 +284,7 @@ function startDirections(id){const p=find(id);if(!p)return;switchTab("map");map.
  sheet(`<h2>Go to ${esc(p.name)}</h2><p class="meta">How are you getting there?</p><div class="row"><button class="pri" data-a="go" data-m="driving" data-id="${id}">🚗 Drive</button><button class="pri" data-a="go" data-m="walking" data-id="${id}">🚶 Walk</button><button class="pri" data-a="go" data-m="commute" data-id="${id}">🚌 Commute</button></div>`,()=>sheet(placeSheet(p)));}
 let SB=null;function sheet(h,back){SB=back||null;const s=$("#sheet");s.hidden=!h;s.innerHTML=h?`<div class="grab" data-a="close"></div><div class="sh2">${back?'<button data-a="back">← Back</button>':"<span></span>"}<button data-a="close" aria-label="Close">✕</button></div>${h}`:"";s.style.animation="none";s.offsetWidth;s.style.animation="";requestAnimationFrame(sheetH);}
 function placeSheet(p){return `${p.photo?`<div class="ph"><img src="${esc(p.photo)}" alt=""></div>`:`<div class="ph">${catOf(p)[0]?.emoji||"📍"}</div>`}<h2>${esc(p.name)} ${demoTag(p.demo)}</h2>
-<p class="meta">${esc(p.town)}${p.town?", ":""}Laguna${S.loc?` · <span class="km">${dist(p)}</span>`:""}</p><div class="tags">${catOf(p).map(c=>`<span>${c.emoji} ${c.label}</span>`).join("")}</div><p>${esc(p.desc)}</p>${p.approx?'<p class="meta">Pin found by map search, so it is approximate.</p>':""}${travelHtml(p)}
+<p class="meta">${esc(p.town)}${p.town?", ":""}Laguna${S.loc?` · <span class="km">${dist(p)}</span>`:""}</p><div class="tags">${catOf(p).map(c=>`<span>${c.emoji} ${c.label}</span>`).join("")}</div><p>${esc(p.desc)}</p>${p.approx?'<p class="meta">Pin found by map search, so it is approximate.</p>':""}${p.pinNote?`<p class="meta">Pin note: ${esc(p.pinNote)}</p>`:""}${travelHtml(p)}
 <div class="row"><button class="pri" data-a="dir" data-id="${p.id}">Get Directions</button><button data-a="save" data-id="${p.id}">${S.saved.has(p.id)?"❤️ Saved":"🤍 Save"}</button><a class="btn" href="${mapsUrl(p)}" target="_blank" rel="noopener">Open in Maps</a></div>`;}
 async function go(id,mode){const p=find(id),back=()=>startDirections(id);if(mode==="commute")return commute(p);
  if(!S.loc){N.want={id,mode};return sheet(`<h2>Where are you now?</h2><p class="meta">Allow location so Laguna Go can start your route. We'll continue automatically.</p><button class="pri" data-a="locate">Use my location</button>`,back);}
