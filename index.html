@@ -48,6 +48,7 @@ section h2{padding:0 14px;margin-top:18px}.grid{display:grid;gap:12px;padding:0 
 .ov{position:absolute;left:0;right:0;bottom:0;padding:16px 14px;background:linear-gradient(transparent,#000d)}.ov .meta{color:#dce7e5}.ov p{margin:4px 0}
 .ov button{background:#ffffff26;color:#fff;border-color:#fff6;backdrop-filter:blur(6px)}.ov .pri{background:var(--jeep);border-color:var(--jeep)}.ov .loc{background:none;border:0;padding:4px 0;font-weight:600}
 .empty{padding:28px 20px;color:var(--mute);text-align:center}
+a.btn{display:inline-block;flex:1;padding:10px 14px;border:1.5px solid var(--lake);border-radius:12px;color:var(--lake);text-decoration:none;text-align:center;background:#fff}
 </style></head><body><div id="app">
 <main><section id="v-map"><div id="map"></div>
 <div id="top"><form id="search"><span class="logo">Laguna<b>Go</b></span><input name="q" autocomplete="off" placeholder="Saan tayo sa Laguna?" aria-label="Search places"><button aria-label="Search online">Go</button></form><ul id="sugg" hidden></ul></div>
@@ -100,6 +101,25 @@ ph("walk","[verified transfer point]","[verified next pickup]","Walk approximate
 ph("unknown","[verified next pickup]","[verified drop-off]","Ride to destination")]}];
 
 return {commuteGuides};})();
+__m["data/places"]=(()=>{
+// PRODUCTION places (owner-supplied). lat/lng null = no exact pin yet: the app finds one via map search on demand
+// and labels it approximate. Add lat/lng (and travel:{steps:[...],verifiedBy:"..."}) to make a place exact.
+const c=(name,address,town)=>({id:(name+"-"+town).toLowerCase().replace(/[^a-z0-9]+/g,"-"),name,town,address,cats:["cafes"],lat:null,lng:null,desc:address,popularity:0,featured:false,photo:null,travel:null});
+const places=[
+c("Tricoffee","Lopez Ave.","Los Baños"),
+c("Cafeture","Agapita Rd., Batong Malake","Los Baños"),
+c("Ui Kape Coffee Shop","El Danda St. (near Iglesia Ni Cristo)","Los Baños"),
+c("Mokape Coffee","Umali Subd., Ruby St., Batong Malake","Los Baños"),
+c("Bypass Road Café","Bucal Bypass Rd.","Calamba"),
+c("CaféAlea Bistro","Bucal Bypass Rd.","Calamba"),
+c("Silong Café","L14 B16 Madison South Commercial","Calamba"),
+c("Bo's Coffee Calamba","National Highway, Bagong Kalsada St.","Calamba"),
+c("Café de Trèz Marias","0546 Sirang Lupa","Calamba"),
+c("Plaza Café","2nd Floor, 28 J. Rizal St.","Pagsanjan"),
+c("Bean There Slowbar","Phoenix Gas Station, Sitio 1, National Hwy","Pagsanjan"),
+c("Alberto's Heritage Cafe","Sitio Dao","Pagsanjan")];
+
+return {places};})();
 __m["data/transportModes"]=(()=>{
 // Vocabulary only (not transit data). Add modes here; guides reference them by key.
 const MODES={walk:{icon:"🚶",label:"Walk"},jeepney:{icon:"🚐",label:"Jeepney"},bus:{icon:"🚌",label:"Bus"},tricycle:{icon:"🛺",label:"Tricycle"},uv:{icon:"🚙",label:"UV Express"},unknown:{icon:"🚏",label:"Ride"}};
@@ -111,13 +131,14 @@ const {categories}=__m["data/categories"];
 const {places:dp}=__m["data/demo/places"];
 const {reels:dr}=__m["data/demo/reels"];
 const {commuteGuides:dg}=__m["data/demo/transport"];
+const {places:pp}=__m["data/places"];
 const {commuteGuides:pg}=__m["data/transport"];
 const DEMO=ENV.VITE_USE_DEMO_DATA!=="false";
 const K="lagunago.saved",user={id:"local",name:"Guest"};
 const repo={
  user:async()=>user,
  categories:async()=>categories,
- places:async()=>DEMO?dp:[],
+ places:async()=>[...pp,...(DEMO?dp:[])],
  reels:async()=>DEMO?dr:[],
  commuteGuide:async(a,b)=>[...pg,...(DEMO?dg:[])].find(g=>g.fromTown===a&&g.toTown===b)||null,
  saved:async()=>new Set(JSON.parse(localStorage.getItem(K)||"[]")),
@@ -162,15 +183,19 @@ const $=s=>document.querySelector(s),esc=s=>String(s??"").replace(/[&<>"']/g,c=>
 const S={loc:null,cat:"all",q:"",places:[],cats:[],reels:[],saved:new Set(),ext:[],likes:new Set(JSON.parse(localStorage.getItem("lagunago.likes")||"[]"))};
 const TABS=[["map","🗺️","Map"],["discover","🔎","Discover"],["reels","🎬","Reels"],["saved","❤️","Saved"],["profile","👤","Profile"]];
 const find=id=>S.places.find(p=>p.id===id)||S.ext.find(p=>p.id===id);
-const km=(a,b)=>{const r=Math.PI/180,x=(b.lat-a.lat)*r,y=(b.lng-a.lng)*r,h=Math.sin(x/2)**2+Math.cos(a.lat*r)*Math.cos(b.lat*r)*Math.sin(y/2)**2;return 12742*Math.asin(Math.sqrt(h));};
-const dist=p=>{if(!S.loc)return"";const d=km(S.loc,p);return d<1?Math.round(d*1000)+" m":d.toFixed(1)+" km";};
+const km=(a,b)=>{if(a?.lat==null||b?.lat==null)return 1e9;const r=Math.PI/180,x=(b.lat-a.lat)*r,y=(b.lng-a.lng)*r,h=Math.sin(x/2)**2+Math.cos(a.lat*r)*Math.cos(b.lat*r)*Math.sin(y/2)**2;return 12742*Math.asin(Math.sqrt(h));};
+const dist=p=>{if(!S.loc||p.lat==null)return"";const d=km(S.loc,p);return d<1?Math.round(d*1000)+" m":d.toFixed(1)+" km";};
 const byNear=a=>S.loc?[...a].sort((x,y)=>km(S.loc,x)-km(S.loc,y)):[...a];
 const demoTag=d=>d?'<span class="demo">DEMO DATA</span>':"";
 const catOf=p=>p.cats.map(i=>S.cats.find(c=>c.id===i)).filter(Boolean);
+const mapsUrl=p=>{const q=encodeURIComponent([p.name,p.address,p.town,"Laguna"].filter(Boolean).join(", "));return /iPhone|iPad|Macintosh/.test(navigator.userAgent)?`https://maps.apple.com/?q=${q}`+(p.lat!=null?`&ll=${p.lat},${p.lng}`:""):`https://www.google.com/maps/search/?api=1&query=${q}`;};
+const travelHtml=p=>p.travel?.steps?.length?`<h3>How to get there</h3><ol class="tl">${p.travel.steps.map(x=>`<li>${esc(x)}</li>`).join("")}</ol><p class="meta">Source: ${esc(p.travel.verifiedBy||"not stated")}</p>`:'<p class="meta">How to get there: commute steps for this place have not been added yet.</p>';
+async function ensureCoords(p){if(p.lat!=null)return true;if(p.tried)return false;p.tried=true;msg("Finding "+p.name+" on the map…");
+ for(const q of [`${p.name}, ${p.address||""}, ${p.town}`,`${p.address||""}, ${p.town}`]){try{const r=await geocode(q);if(r[0]){p.lat=r[0].lat;p.lng=r[0].lng;p.approx=true;drawPins(S.places);return true;}}catch{}await new Promise(r=>setTimeout(r,1100));}return false;}
 let mt;const msg=t=>{const m=$("#msg");m.textContent=t;m.hidden=false;clearTimeout(mt);mt=setTimeout(()=>m.hidden=true,4500);};
 // ---- map
 const map=createMap("map",()=>msg("Map tiles could not load. Check your connection; OpenStreetMap blocks requests that carry no referrer.")),pins=L.layerGroup().addTo(map),line=L.layerGroup().addTo(map),ring=L.layerGroup().addTo(map);let me;
-const drawPins=a=>{pins.clearLayers();a.forEach(p=>L.circleMarker([p.lat,p.lng],{radius:9,color:"#fff",weight:2,fillColor:"#d6402f",fillOpacity:1}).on("click",()=>showOnMap(p.id)).addTo(pins));};
+const drawPins=a=>{pins.clearLayers();a.filter(p=>p.lat!=null).forEach(p=>L.circleMarker([p.lat,p.lng],{radius:9,color:"#fff",weight:2,fillColor:"#d6402f",fillOpacity:1}).on("click",()=>showOnMap(p.id)).addTo(pins));};
 const sheetH=()=>document.documentElement.style.setProperty("--sheet",$("#sheet").hidden?"0px":$("#sheet").offsetHeight+"px");
 function locate(){const b=$("#locate");if(!navigator.geolocation)return msg("This device has no GPS support.");
  if(!isSecureContext)return msg("GPS needs HTTPS (or localhost).");b.classList.add("busy");
@@ -180,17 +205,17 @@ function locate(){const b=$("#locate");if(!navigator.geolocation)return msg("Thi
  const bad=e=>{b.classList.remove("busy");msg(e.code===1?"Location is blocked. Allow it in your browser settings.":"Couldn't get your location. Try again outdoors or with Wi-Fi on.");};
  navigator.geolocation.getCurrentPosition(ok,e=>e.code===1?bad(e):navigator.geolocation.getCurrentPosition(ok,bad,{enableHighAccuracy:false,timeout:15000,maximumAge:60000}),{enableHighAccuracy:true,timeout:8000,maximumAge:30000});}
 // single entry points used by Map, Discover, Saved and Reels
-function showOnMap(id){const p=find(id);if(!p)return;switchTab("map");map.invalidateSize();ring.clearLayers();
+async function showOnMap(id){const p=find(id);if(!p)return;switchTab("map");map.invalidateSize();ring.clearLayers();if(!await ensureCoords(p)){sheet(placeSheet(p));return msg("No exact pin found. Use Open in Maps.");}
  L.circleMarker([p.lat,p.lng],{radius:17,color:"#f5b52e",weight:4,fill:false}).addTo(ring);map.flyTo([p.lat,p.lng],15,{duration:.8});sheet(placeSheet(p));}
-function startDirections(id){const p=find(id);if(!p)return;switchTab("map");map.invalidateSize();ring.clearLayers();L.circleMarker([p.lat,p.lng],{radius:17,color:"#f5b52e",weight:4,fill:false}).addTo(ring);map.flyTo([p.lat,p.lng],14,{duration:.8});
+function startDirections(id){const p=find(id);if(!p)return;switchTab("map");map.invalidateSize();ring.clearLayers();if(p.lat!=null){L.circleMarker([p.lat,p.lng],{radius:17,color:"#f5b52e",weight:4,fill:false}).addTo(ring);map.flyTo([p.lat,p.lng],14,{duration:.8});}
  sheet(`<h2>Go to ${esc(p.name)}</h2><p class="meta">How are you getting there?</p><div class="row"><button class="pri" data-a="go" data-m="driving" data-id="${id}">🚗 Drive</button><button class="pri" data-a="go" data-m="walking" data-id="${id}">🚶 Walk</button><button class="pri" data-a="go" data-m="commute" data-id="${id}">🚌 Commute</button></div>`);}
 function sheet(h){const s=$("#sheet");s.hidden=!h;s.innerHTML=h?`<div class="grab" data-a="close"></div>${h}`:"";s.style.animation="none";s.offsetWidth;s.style.animation="";requestAnimationFrame(sheetH);}
 function placeSheet(p){return `${p.photo?`<div class="ph"><img src="${esc(p.photo)}" alt=""></div>`:`<div class="ph">${catOf(p)[0]?.emoji||"📍"}</div>`}<h2>${esc(p.name)} ${demoTag(p.demo)}</h2>
-<p class="meta">${esc(p.town)}${p.town?", ":""}Laguna${S.loc?` · <span class="km">${dist(p)}</span>`:""}</p><div class="tags">${catOf(p).map(c=>`<span>${c.emoji} ${c.label}</span>`).join("")}</div><p>${esc(p.desc)}</p>
-<div class="row"><button class="pri" data-a="dir" data-id="${p.id}">Get Directions</button><button data-a="save" data-id="${p.id}">${S.saved.has(p.id)?"❤️ Saved":"🤍 Save"}</button></div>`;}
+<p class="meta">${esc(p.town)}${p.town?", ":""}Laguna${S.loc?` · <span class="km">${dist(p)}</span>`:""}</p><div class="tags">${catOf(p).map(c=>`<span>${c.emoji} ${c.label}</span>`).join("")}</div><p>${esc(p.desc)}</p>${p.approx?'<p class="meta">Pin found by map search, so it is approximate.</p>':""}${travelHtml(p)}
+<div class="row"><button class="pri" data-a="dir" data-id="${p.id}">Get Directions</button><button data-a="save" data-id="${p.id}">${S.saved.has(p.id)?"❤️ Saved":"🤍 Save"}</button><a class="btn" href="${mapsUrl(p)}" target="_blank" rel="noopener">Open in Maps</a></div>`;}
 async function go(id,mode){const p=find(id);if(mode==="commute")return commute(p);
  if(!S.loc)return sheet(`<h2>Where are you now?</h2><p class="meta">Turn on location so Laguna Go can start your route.</p><button class="pri" data-a="locate">Use my location</button>`);
- sheet("<p>Finding the best route…</p>");try{const r=await route(mode,S.loc,p);line.clearLayers();const g=L.geoJSON(r.geometry,{style:{color:"#0b5563",weight:6,opacity:.9}}).addTo(line);map.flyToBounds(g.getBounds(),{padding:[60,60],duration:.8});
+ sheet("<p>Finding the best route…</p>");if(!await ensureCoords(p))return sheet(`<h2>Can't place ${esc(p.name)} on the map</h2><p>Open it in your Maps app instead.</p><a class="btn" href="${mapsUrl(p)}" target="_blank" rel="noopener">Open in Maps</a>`);try{const r=await route(mode,S.loc,p);line.clearLayers();const g=L.geoJSON(r.geometry,{style:{color:"#0b5563",weight:6,opacity:.9}}).addTo(line);map.flyToBounds(g.getBounds(),{padding:[60,60],duration:.8});
  sheet(`<h2>${mode==="driving"?"🚗":"🚶"} ${r.min} min <small class="meta">· ${r.km.toFixed(1)} km</small></h2><p class="meta">To ${esc(p.name)}</p><ol>${r.steps.map(s=>`<li>${esc(s)}</li>`).join("")}</ol><button data-a="clear">Clear route</button>`);}
  catch(e){sheet(`<h2>No route</h2><p>${esc(e.message)}. Check your connection or the routing URL in .env.</p>`);}}
 async function commute(p,from){const towns=[...new Set(S.places.map(x=>x.town))].sort(),f=from||(S.loc?byNear(S.places)[0].town:towns[0]),g=await repo.commuteGuide(f,p.town);
