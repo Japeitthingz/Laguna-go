@@ -9,7 +9,7 @@ html,body{margin:0;height:100%;background:var(--paddy);color:var(--ink)}
 @media(min-width:600px){body{display:grid;place-items:center}#app{width:410px;height:min(860px,94vh);border-radius:36px;box-shadow:0 20px 60px #0b55634d;border:8px solid var(--lake2)}}
 main{flex:1;min-height:0;position:relative}main>section{position:absolute;top:0;right:0;bottom:0;left:0;overflow:auto;overscroll-behavior:contain}
 h1,h2,h3{font-family:"Bricolage Grotesque",sans-serif;margin:.3em 0;line-height:1.15}
-#map{position:absolute;top:0;right:0;bottom:0;left:0;background:#cfe3dc}
+#map{position:absolute;top:0;right:0;bottom:0;left:0;background:#cfe3dc;z-index:0}
 #top{position:absolute;z-index:500;top:calc(10px + env(safe-area-inset-top));left:10px;right:10px}
 #search{display:flex;align-items:center;gap:6px;background:#fff;border-radius:16px;padding:5px 5px 5px 12px;box-shadow:0 4px 16px #0b55633a}
 .logo{font:700 15px "Bricolage Grotesque";color:var(--lake)}.logo b{color:var(--jeep)}
@@ -36,7 +36,7 @@ section h2{padding:0 14px;margin-top:18px}.grid{display:grid;gap:12px;padding:0 
 .km{background:var(--paddy);color:var(--lake2);font-weight:600;font-size:12px;padding:2px 8px;border-radius:99px}
 .demo,.warn{background:#ffe7a8;color:#5a3d00;font-size:11px;font-weight:600;padding:2px 8px;border-radius:99px;vertical-align:middle}.warn{display:block;border-radius:10px;padding:8px;font-size:13px}
 .tags{display:flex;gap:6px;flex-wrap:wrap}.tags span{background:var(--paddy);border-radius:99px;padding:3px 10px;font-size:12px}
-#sheet{position:absolute;z-index:700;left:0;right:0;bottom:0;max-height:62%;overflow:auto;background:#fff;border-radius:24px 24px 0 0;box-shadow:0 -6px 28px #0b556340;padding:8px 14px calc(14px + env(safe-area-inset-bottom));animation:up .28s ease-out}
+#sheet{position:absolute;z-index:900;left:0;right:0;bottom:0;max-height:62%;overflow:auto;background:#fff;border-radius:24px 24px 0 0;box-shadow:0 -6px 28px #0b556340;padding:8px 14px calc(14px + env(safe-area-inset-bottom));animation:up .28s ease-out}
 @keyframes up{from{transform:translateY(40px);opacity:0}}
 .grab{width:44px;height:5px;border-radius:9px;background:#cfd9cc;margin:4px auto 10px}.sh{height:130px;margin:0 -14px 8px;border-radius:0}#sheet .ph{height:130px;margin:0 -14px 8px}
 #sheet ol{padding-left:20px}.tl{list-style:none;padding:0!important;margin:8px 0}.tl li{border-left:3px solid var(--lake);padding:2px 0 14px 12px;margin-left:8px;position:relative}.tl li.walk{border-left-style:dashed}.tl li p{margin:2px 0;font-size:14px}.tl li p.tr{color:var(--jeep);font-weight:600}
@@ -57,13 +57,14 @@ button.end{background:var(--jeep);border-color:var(--jeep);color:#fff}button.sta
 #navmsg{position:absolute;z-index:810;left:12px;right:12px;top:calc(118px + env(safe-area-inset-top));background:var(--ink);color:#fff;padding:10px 14px;border-radius:12px}
 #recenter{position:absolute;z-index:810;left:50%;transform:translateX(-50%);bottom:160px;background:var(--lake);color:#fff;box-shadow:0 4px 14px #0b556360}
 #app.nav #nav,#app.nav #top,#app.nav .fabs{display:none}.dest{font-size:30px;text-align:center}
+.sh2{display:flex;justify-content:space-between;align-items:center;margin:-2px 0 4px}.sh2 button{padding:6px 14px;border-radius:99px;min-height:36px}
 </style></head><body><div id="app">
 <main><section id="v-map"><div id="map"></div>
 <div id="top"><form id="search"><span class="logo">Laguna<b>Go</b></span><input name="q" autocomplete="off" placeholder="Saan tayo sa Laguna?" aria-label="Search places"><button aria-label="Search online">Go</button></form><ul id="sugg" hidden></ul></div>
 <div class="fabs"><button id="home" aria-label="Show all of Laguna">Laguna</button><button id="locate" aria-label="My location">◎</button></div><div id="msg" hidden></div></section>
 <section id="v-discover" hidden></section><section id="v-reels" hidden></section>
-<section id="v-saved" hidden></section><section id="v-profile" hidden></section></main>
-<div id="navtop" hidden></div><div id="navbot" hidden></div><div id="navmsg" hidden></div><button id="recenter" hidden>◎ Re-center</button><div id="sheet" hidden></div><nav id="nav"></nav></div><div id="boot" style="position:fixed;z-index:9999;top:0;left:0;right:0;background:#fde8b8;color:#400;font:13px system-ui;padding:6px" hidden></div><script>addEventListener("error",e=>{var b=document.getElementById("boot");b.hidden=false;b.textContent="Error: "+e.message});setTimeout(function(){if(!window.__lg){var b=document.getElementById("boot");b.hidden=false;b.textContent="Laguna Go did not start. Leaflet may be blocked or a script failed."}},6000)</script><script type="module">
+<section id="v-saved" hidden></section><section id="v-profile" hidden></section><div id="sheet" hidden></div></main>
+<div id="navtop" hidden></div><div id="navbot" hidden></div><div id="navmsg" hidden></div><button id="recenter" hidden>◎ Re-center</button><nav id="nav"></nav></div><div id="boot" style="position:fixed;z-index:9999;top:0;left:0;right:0;background:#fde8b8;color:#400;font:13px system-ui;padding:6px" hidden></div><script>addEventListener("error",e=>{var b=document.getElementById("boot");b.hidden=false;b.textContent="Error: "+e.message});setTimeout(function(){if(!window.__lg){var b=document.getElementById("boot");b.hidden=false;b.textContent="Laguna Go did not start. Leaflet may be blocked or a script failed."}},6000)</script><script type="module">
 import L from "https://cdn.jsdelivr.net/npm/leaflet@1.9.4/+esm";
 const ENV=window.LAGUNA_ENV||{};const __m={};
 __m["data/categories"]=(()=>{
@@ -233,25 +234,25 @@ function locate(){const b=$("#locate");if(!navigator.geolocation)return msg("Thi
  if(!isSecureContext)return msg("GPS needs HTTPS (or localhost).");b.classList.add("busy");
  const ok=p=>{b.classList.remove("busy");S.loc={lat:p.coords.latitude,lng:p.coords.longitude};me&&me.remove();
   me=L.layerGroup([L.circle([S.loc.lat,S.loc.lng],{radius:p.coords.accuracy,stroke:false,fillColor:"#0b5563",fillOpacity:.12}),L.circleMarker([S.loc.lat,S.loc.lng],{radius:8,color:"#fff",weight:3,fillColor:"#0b5563",fillOpacity:1})]).addTo(map);
-  if(LAGUNA.contains(S.loc))map.flyTo([S.loc.lat,S.loc.lng],15,{duration:.8});else{msg("You're outside Laguna, so we're showing Laguna.");map.flyToBounds(LAGUNA);}renderAll();};
+  if(LAGUNA.contains(S.loc))map.flyTo([S.loc.lat,S.loc.lng],15,{duration:.8});else{msg("You're outside Laguna, so we're showing Laguna.");map.flyToBounds(LAGUNA);}renderAll();if(N.want){const w=N.want;N.want=null;go(w.id,w.mode);}};
  const bad=e=>{b.classList.remove("busy");msg(e.code===1?"Location is blocked. Allow it in your browser settings.":"Couldn't get your location. Try again outdoors or with Wi-Fi on.");};
  navigator.geolocation.getCurrentPosition(ok,e=>e.code===1?bad(e):navigator.geolocation.getCurrentPosition(ok,bad,{enableHighAccuracy:false,timeout:15000,maximumAge:60000}),{enableHighAccuracy:true,timeout:8000,maximumAge:30000});}
 // single entry points used by Map, Discover, Saved and Reels
 async function showOnMap(id){const p=find(id);if(!p)return;switchTab("map");map.invalidateSize();ring.clearLayers();if(!await ensureCoords(p)){sheet(placeSheet(p));return msg("No exact pin found. Use Open in Maps.");}
  L.circleMarker([p.lat,p.lng],{radius:17,color:"#f5b52e",weight:4,fill:false}).addTo(ring);map.flyTo([p.lat,p.lng],15,{duration:.8});sheet(placeSheet(p));}
 function startDirections(id){const p=find(id);if(!p)return;switchTab("map");map.invalidateSize();ring.clearLayers();if(p.lat!=null){L.circleMarker([p.lat,p.lng],{radius:17,color:"#f5b52e",weight:4,fill:false}).addTo(ring);map.flyTo([p.lat,p.lng],14,{duration:.8});}
- sheet(`<h2>Go to ${esc(p.name)}</h2><p class="meta">How are you getting there?</p><div class="row"><button class="pri" data-a="go" data-m="driving" data-id="${id}">🚗 Drive</button><button class="pri" data-a="go" data-m="walking" data-id="${id}">🚶 Walk</button><button class="pri" data-a="go" data-m="commute" data-id="${id}">🚌 Commute</button></div>`);}
-function sheet(h){const s=$("#sheet");s.hidden=!h;s.innerHTML=h?`<div class="grab" data-a="close"></div>${h}`:"";s.style.animation="none";s.offsetWidth;s.style.animation="";requestAnimationFrame(sheetH);}
+ sheet(`<h2>Go to ${esc(p.name)}</h2><p class="meta">How are you getting there?</p><div class="row"><button class="pri" data-a="go" data-m="driving" data-id="${id}">🚗 Drive</button><button class="pri" data-a="go" data-m="walking" data-id="${id}">🚶 Walk</button><button class="pri" data-a="go" data-m="commute" data-id="${id}">🚌 Commute</button></div>`,()=>sheet(placeSheet(p)));}
+let SB=null;function sheet(h,back){SB=back||null;const s=$("#sheet");s.hidden=!h;s.innerHTML=h?`<div class="grab" data-a="close"></div><div class="sh2">${back?'<button data-a="back">← Back</button>':"<span></span>"}<button data-a="close" aria-label="Close">✕</button></div>${h}`:"";s.style.animation="none";s.offsetWidth;s.style.animation="";requestAnimationFrame(sheetH);}
 function placeSheet(p){return `${p.photo?`<div class="ph"><img src="${esc(p.photo)}" alt=""></div>`:`<div class="ph">${catOf(p)[0]?.emoji||"📍"}</div>`}<h2>${esc(p.name)} ${demoTag(p.demo)}</h2>
 <p class="meta">${esc(p.town)}${p.town?", ":""}Laguna${S.loc?` · <span class="km">${dist(p)}</span>`:""}</p><div class="tags">${catOf(p).map(c=>`<span>${c.emoji} ${c.label}</span>`).join("")}</div><p>${esc(p.desc)}</p>${p.approx?'<p class="meta">Pin found by map search, so it is approximate.</p>':""}${travelHtml(p)}
 <div class="row"><button class="pri" data-a="dir" data-id="${p.id}">Get Directions</button><button data-a="save" data-id="${p.id}">${S.saved.has(p.id)?"❤️ Saved":"🤍 Save"}</button><a class="btn" href="${mapsUrl(p)}" target="_blank" rel="noopener">Open in Maps</a></div>`;}
-async function go(id,mode){const p=find(id);if(mode==="commute")return commute(p);
- if(!S.loc)return sheet(`<h2>Where are you now?</h2><p class="meta">Turn on location so Laguna Go can start your route.</p><button class="pri" data-a="locate">Use my location</button>`);
- sheet("<p>Finding the best route…</p>");if(!await ensureCoords(p))return sheet(`<h2>Can't place ${esc(p.name)} on the map</h2><p>Open it in your Maps app instead.</p><a class="btn" href="${mapsUrl(p)}" target="_blank" rel="noopener">Open in Maps</a>`);
+async function go(id,mode){const p=find(id),back=()=>startDirections(id);if(mode==="commute")return commute(p);
+ if(!S.loc){N.want={id,mode};return sheet(`<h2>Where are you now?</h2><p class="meta">Allow location so Laguna Go can start your route. We'll continue automatically.</p><button class="pri" data-a="locate">Use my location</button>`,back);}
+ sheet("<p>Finding the best route…</p>",back);if(!await ensureCoords(p))return sheet(`<h2>Can't place ${esc(p.name)} on the map</h2><p>Open it in your Maps app instead.</p><a class="btn" href="${mapsUrl(p)}" target="_blank" rel="noopener">Open in Maps</a>`,back);
  try{const r=await route(mode,S.loc,p);N.pend={r,mode,p};drawLine(r,p);map.flyToBounds(L.latLngBounds(r.coords),{padding:[60,60],duration:.8});
  sheet(`<h2>${mode==="driving"?"🚗":"🚶"} ${fmtMin(r.sec)} <small class="meta">· ${fmtDist(r.m)}</small></h2><p class="meta">To ${esc(p.name)} · Arrive about ${eta(r.sec)} (estimate, no live traffic)</p><button class="pri start" data-a="start">START</button>
- <details><summary class="meta">Directions list</summary><ol>${r.steps.map(x=>`<li>${esc(instruction(x))} <small class="meta">${fmtDist(x.dist)}</small></li>`).join("")}</ol></details><button data-a="clear">Cancel</button>`);}
- catch(e){sheet(`<h2>No route</h2><p>${esc(e.message)}. Check your connection or the routing URL.</p>`);}}
+ <details><summary class="meta">Directions list</summary><ol>${r.steps.map(x=>`<li>${esc(instruction(x))} <small class="meta">${fmtDist(x.dist)}</small></li>`).join("")}</ol></details><button data-a="clear">Cancel</button>`,()=>{line.clearLayers();startDirections(id);});}
+ catch(e){sheet(`<h2>No route</h2><p>${esc(e.message)}. Check your connection or the routing URL.</p>`,back);}}
 async function commute(p,from){const towns=[...new Set(S.places.map(x=>x.town))].sort(),f=from||(S.loc?byNear(S.places)[0].town:towns[0]),g=await repo.commuteGuide(f,p.town);
  const v=(x,u)=>x==null?"not available":x+u,pt=(l,x)=>x?`<p>${l}: ${esc(x.name)}</p>`:"";
  sheet(`<h2>Commute Directions</h2><label class="meta">FROM<select data-a="from" data-id="${p.id}">${towns.map(t=>`<option ${t===f?"selected":""}>${esc(t)}</option>`).join("")}</select></label><p><b>TO</b> ${esc(p.name)}, ${esc(p.town)}</p>
@@ -259,7 +260,7 @@ async function commute(p,from){const towns=[...new Set(S.places.map(x=>x.town))]
  <ol class="tl">${g.segments.map((s,i,a)=>{const m=MODES[s.mode]||MODES.unknown,tr=s.mode!=="walk"&&a.slice(0,i).some(x=>x.mode!=="walk");
   return `<li class="${s.mode}">${tr?'<p class="tr">Transfer</p>':""}<b>${m.icon} ${m.label}</b><p>${esc(s.note||"")}</p>${pt("Pickup",s.from)}${pt("Drop-off",s.to)}${s.landmark?`<p>Landmark: ${esc(s.landmark)}</p>`:""}<p class="meta">Time: ${v(s.minutes," min")} · Fare: ${v(s.fare,"")}</p></li>`}).join("")}</ol>`
  :`<p class="empty">No verified commute data for ${esc(f)} → ${esc(p.town)} yet. Add it in <code>src/data/transport.js</code> or your database.</p>`}
- <div class="row"><button data-a="go" data-m="driving" data-id="${p.id}">🚗 Drive instead</button><button data-a="go" data-m="walking" data-id="${p.id}">🚶 Walk instead</button></div>`);}
+ <div class="row"><button data-a="go" data-m="driving" data-id="${p.id}">🚗 Drive instead</button><button data-a="go" data-m="walking" data-id="${p.id}">🚶 Walk instead</button></div>`,()=>startDirections(p.id));}
 // ---- search
 const sugg=$("#sugg");
 $("#search input").addEventListener("input",e=>{const q=e.target.value.trim().toLowerCase();if(!q){sugg.hidden=true;return;}
@@ -323,7 +324,7 @@ map.on("dragstart",()=>{if(N.st==="active"){N.follow=false;$("#recenter").hidden
 // ---- events
 document.addEventListener("click",async e=>{if(!e.target.closest("#top"))sugg.hidden=true;const b=e.target.closest("[data-t],[data-a]");if(!b)return;const{t,a,id,m,q}=b.dataset;
  if(t)return switchTab(t);
- if(a==="close")sheet("");if(a==="clear"){line.clearLayers();ring.clearLayers();drawPins(S.places);sheet("");}
+ if(a==="close"){N.want=null;sheet("");}if(a==="back"){N.want=null;SB&&SB();}if(a==="clear"){line.clearLayers();ring.clearLayers();drawPins(S.places);sheet("");}
  if(a==="cat"){S.cat=id;dbody();}if(a==="map")showOnMap(id);if(a==="dir")startDirections(id);if(a==="go")go(id,m);if(a==="start")startNav();if(a==="endnav")endNav();if(a==="locate"){switchTab("map");locate();}if(a==="web")webSearch(q);
  if(a==="save"){S.saved=await repo.toggleSaved(id);discover();saved();reels();if(!$("#sheet").hidden&&find(id))sheet(placeSheet(find(id)));}
  if(a==="like"){S.likes.has(id)?S.likes.delete(id):S.likes.add(id);localStorage.setItem("lagunago.likes",JSON.stringify([...S.likes]));const y=$("#v-reels").scrollTop;reels();$("#v-reels").scrollTop=y;}
