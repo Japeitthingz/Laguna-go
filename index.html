@@ -89,9 +89,9 @@ return {places};})();
 __m["data/demo/reels"]=(()=>{
 // DEMO DATA: no real videos. Add files under /public/videos and set videoUrl.
 const reels=[
-{id:"r1",title:"3 underrated places to visit in Laguna",creator:"Demo Creator",desc:"Placeholder reel. Replace with real content.",placeId:"nagcarlan",videoUrl:null,demo:true},
-{id:"r2",title:"Morning on Lake Caliraya",creator:"Demo Creator",desc:"Placeholder reel.",placeId:"lake-caliraya",videoUrl:null,demo:true},
-{id:"r3",title:"Makiling trail first look",creator:"Demo Creator",desc:"Placeholder reel.",placeId:"makiling",videoUrl:null,demo:true}];
+{id:"r1",title:"3 underrated places to visit in Laguna",creator:"Demo Creator",desc:"Placeholder reel. Replace with real content.",placeId:"nagcarlan-underground-cemetery-nagcarlan",videoUrl:null,demo:true},
+{id:"r2",title:"Morning on Lake Caliraya",creator:"Demo Creator",desc:"Placeholder reel.",placeId:"lake-caliraya-cavinti-lumban",videoUrl:null,demo:true},
+{id:"r3",title:"Makiling trail first look",creator:"Demo Creator",desc:"Placeholder reel.",placeId:"mt-makiling-los-ba-os",videoUrl:null,demo:true}];
 
 return {reels};})();
 __m["data/transport"]=(()=>{
@@ -113,7 +113,7 @@ return {commuteGuides};})();
 __m["data/places"]=(()=>{
 // PRODUCTION places (owner-supplied). lat/lng null = no exact pin yet: the app finds one via map search on demand
 // and labels it approximate. Add lat/lng (and travel:{steps:[...],verifiedBy:"..."}) to make a place exact.
-const P=(name,town,cats,address="",lat=null,lng=null,desc="",pinNote="")=>({id:(name+"-"+town).toLowerCase().replace(/[^a-z0-9]+/g,"-"),name,town,address,cats,lat,lng,desc:desc||address||town,pinNote,popularity:0,featured:false,photo:null,travel:null});
+const P=(name,town,cats,address="",lat=null,lng=null,desc="",pinNote="")=>({id:(name+"-"+town).toLowerCase().replace(/[^a-z0-9]+/g,"-"),name,town,address,cats:[...cats],lat,lng,desc:desc||address||town,pinNote,popularity:0,featured:false,photo:null,travel:null});
 const cafe=(n,a,t)=>P(n,t,["cafes"],a);
 const A=["activities"],H=["hotels"],AH=["activities","hotels"],S=["shopping"];
 const places=[
@@ -216,7 +216,63 @@ P("St. Gregory the Great Church","Majayjay",["attractions"],"",null,null,"",""),
 P("Our Lady of Turumba Shrine","Pakil",["attractions"],"",null,null,"",""),
 P("Paete Church","Paete",["attractions"],"",null,null,"",""),
 P("Giant Banga (Rizal Monument area)","Calamba",["attractions"],"",null,null,"",""),
-P("Pagsanjan Gorge","Pagsanjan",["attractions"],"",null,null,"","")];
+P("Pagsanjan Gorge","Pagsanjan",["attractions"],"",null,null,"",""),
+// Batch 3 (hidden gems, attractions, restaurants, cafes)
+P("Buntot Palos Falls","Pangil",["hidden"],"",null,null,"About a 2-hour trek, so it's quieter than other falls.",""),
+P("Talay Falls","Luisiana",["hidden"],"",null,null,"The calm one in the three-falls trail.",""),
+P("Bunga Falls","Nagcarlan",["hidden"],"Brgy. Bunga",null,null,"Twin falls.",""),
+P("Burnt Ends","Pagsanjan",["hidden"],"Taiño cor. Mabini",null,null,"Filipino food in an old house.",""),
+P("Casa Verde","Pagsanjan",["hidden"],"A. Mabini St.",null,null,"",""),
+P("Kubu de Pagsanjan","Pagsanjan",["hidden"],"P. Caballes St.",null,null,"Riverside dining.",""),
+P("Lola Vi's Kitchenette","San Pablo",["hidden"],"Sampaloc Lake, San Pablo City",null,null,"",""),
+P("Lake Yambo","Nagcarlan",["nature", "hidden"],"",null,null,"",""),
+P("National Shrine of San Antonio de Padua (Pila Church)","Pila",["attractions"],"82 Burzagom St.",null,null,"",""),
+P("St. John the Baptist Parish (Liliw Church)","Liliw",["attractions"],"",null,null,"",""),
+P("San Bartolome Apostol Parish Church","Nagcarlan",["attractions"],"Poblacion",null,null,"",""),
+P("Our Lady of Guadalupe Shrine","Pagsanjan",["attractions"],"",null,null,"",""),
+P("Liliw Arch","Liliw",["attractions"],"Nagcarlan-Liliw Rd.",null,null,"",""),
+P("Cavinti (Pagsanjan) Falls","Cavinti",["attractions"],"Cavinti Bridge I",14.262589,121.499961,"",""),
+P("Rizal Shrine","Calamba",["attractions"],"",null,null,"",""),
+P("Seven Lakes of San Pablo","San Pablo",["attractions"],"San Pablo City",null,null,"",""),
+P("Mt. Makiling","Los Baños",["attractions"],"",null,null,"",""),
+P("SouthYard Restaurant and Events Place","Santa Cruz",["restaurants"],"National Hwy",null,null,"",""),
+P("King Olaf Steakhouse and Cafe","Santa Cruz",["restaurants"],"Sitio Matahimik, Duhat",null,null,"",""),
+P("Goodwill Cafe & Restaurant","Santa Cruz",["restaurants"],"Sitio Narra",null,null,"Closed Sundays.",""),
+P("Ted's Kitchen Laguna","Santa Cruz",["restaurants"],"KM 83 National Hwy",null,null,"",""),
+P("Tia Diva Restaurant","San Pedro",["restaurants"],"Unit 5A1, Rosario Commercial, Rosario Complex",null,null,"",""),
+P("Hygge Restaurant","San Pedro",["restaurants"],"Unit 6B, Rosario Complex",null,null,"Steakhouse.",""),
+P("The Seafood Shack Restaurant","Cabuyao",["restaurants"],"",null,null,"",""),
+P("Umpay's Resto Cafe","Liliw",["restaurants"],"Gat Tayaw",null,null,"",""),
+P("Paulita's","Cabuyao",["cafes"],"0231",null,null,"",""),
+P("CO Avenue","Cabuyao",["cafes"],"2nd Floor, SPI Building, Manila South Rd.",null,null,"Café and co-working.",""),
+P("Caffè Lilio","Liliw",["cafes"],"4CJP+W66",14.132262,121.435641,"","Pin decoded from the plus code you gave."),
+P("GK Cafe","Liliw",["cafes"],"St. Elizabeth Subd., Ilayang Palina",null,null,"",""),
+P("Every Morning Coffee","Liliw",["cafes"],"220 M.H. del Pilar St., Brgy. Pag-asa",null,null,"",""),
+P("Bad H Coffee Bar","Santa Rosa",["cafes"],"Blk 3 Lot 23 & 25, De Lima Subd.",null,null,"",""),
+P("Krāv Cafe","Santa Rosa",["cafes"],"JP Rizal Blvd.",null,null,"",""),
+P("Alon ng Kape","Biñan",["cafes"],"2nd Floor, OJCCC Casquero Bldg., Platero",null,null,"Specialty roastery.",""),
+P("The Coffee Affair Bistro","Santa Cruz",["cafes"],"Bagumbayan",null,null,"",""),
+P("Caffe Primo","Alaminos",["cafes"],"Parco Royale Clubhouse, Poblacion III",null,null,"","")];
+// Later additions from the owner's lists: extra categories / notes for places already above.
+const by=n=>places.find(p=>p.name===n);const upd=(n,cats,desc,address)=>{const p=by(n);if(!p)throw new Error("places.js: missing "+n);cats.forEach(c=>p.cats.includes(c)||p.cats.push(c));if(desc)p.desc=desc;if(address)p.address=address;};
+upd("Alberto's Heritage Cafe",["hidden"],"Upside-down decor.",null);
+upd("Bean There Slowbar",["hidden"],null,null);
+upd("Café de Trèz Marias",["hidden"],null,null);
+upd("Lotuspod",["hidden"],null,null);
+upd("Haven by the Lake",["hidden"],null,null);
+upd("Chandava Lakeside Resort",["hidden"],null,null);
+upd("Ambon-Ambon Falls",["hidden"],"River trek. River crossings and rafts.",null);
+upd("Hulugan Falls",["attractions"],null,null);
+upd("Buruwisan Falls",["attractions"],null,null);
+upd("Bukal Falls",["attractions"],"Trek and swim. Also listed as Kilangin Falls (Liliw/Majayjay).",null);
+upd("Nuvali Park",["attractions"],null,null);
+upd("Splash Island",["attractions"],null,null);
+upd("The Fun Farm at Sta. Elena",["attractions"],null,null);
+upd("Tayak (TANAW) Park",["attractions"],null,null);
+upd("Enchanted Kingdom",["attractions"],null,null);
+upd("Paete Church",[],"Church and woodcarving town.",null);
+upd("Kusina Rojuana",["restaurants"],"Closed Sun and Mon.","2nd Floor, Rojuana Building");
+upd("The Rustic Bistro Liliw",["restaurants"],null,"Kilangin Falls Rd., Novaliches");
 
 return {places};})();
 __m["data/transportModes"]=(()=>{
@@ -237,7 +293,7 @@ const K="lagunago.saved",user={id:"local",name:"Guest"};
 const repo={
  user:async()=>user,
  categories:async()=>categories,
- places:async()=>{const n=new Set(pp.map(x=>x.name.toLowerCase()));return [...pp,...(DEMO?dp.filter(d=>!n.has(d.name.toLowerCase())):[])];},
+ places:async()=>{const z=x=>x.toLowerCase().replace(/mount/g,"mt").replace(/[^a-z0-9]/g,"");const n=new Set(pp.map(x=>z(x.name)));return [...pp,...(DEMO?dp.filter(d=>!n.has(z(d.name))):[])];},
  reels:async()=>DEMO?dr:[],
  commuteGuide:async(a,b)=>[...pg,...(DEMO?dg:[])].find(g=>g.fromTown===a&&g.toTown===b)||null,
  saved:async()=>new Set(JSON.parse(localStorage.getItem(K)||"[]")),
@@ -423,7 +479,7 @@ document.addEventListener("click",async e=>{if(!e.target.closest("#top"))sugg.hi
 document.addEventListener("change",e=>{const s=e.target;if(s.dataset.a==="from")commute(find(s.dataset.id),s.value);});
 $("#locate").onclick=locate;$("#recenter").onclick=()=>{N.follow=true;$("#recenter").hidden=true;S.loc&&map.setView([S.loc.lat,S.loc.lng],Math.max(map.getZoom(),16),{animate:false});};$("#home").onclick=()=>{ring.clearLayers();map.flyToBounds(LAGUNA,{duration:.8});};
 $("#nav").innerHTML=TABS.map(([id,i,l])=>`<button data-t="${id}"><span>${i}</span>${l}</button>`).join("");
-(async()=>{[S.cats,S.places,S.reels,S.saved]=await Promise.all([repo.categories(),repo.places(),repo.reels(),repo.saved()]);renderAll();switchTab("map");})();
+(async()=>{[S.cats,S.places,S.reels,S.saved]=await Promise.all([repo.categories(),repo.places(),repo.reels(),repo.saved()]);S.reels=S.reels.filter(r=>find(r.placeId));renderAll();switchTab("map");})();
 
 return {};})();
 window.__lg=1;
