@@ -374,7 +374,7 @@ async function ensureCoords(p){if(p.lat!=null)return true;if(p.tried)return fals
 let mt;const msg=t=>{const m=$("#msg");m.textContent=t;m.hidden=false;clearTimeout(mt);mt=setTimeout(()=>m.hidden=true,4500);};
 // ---- map
 const map=createMap("map",()=>msg("Map tiles could not load. Check your connection; OpenStreetMap blocks requests that carry no referrer.")),pins=L.layerGroup().addTo(map),line=L.layerGroup().addTo(map),ring=L.layerGroup().addTo(map);let me;
-const drawPins=a=>{pins.clearLayers();a.filter(p=>p.lat!=null).forEach(p=>L.circleMarker([p.lat,p.lng],{radius:9,color:"#fff",weight:2,fillColor:"#d6402f",fillOpacity:1}).on("click",()=>showOnMap(p.id)).addTo(pins));};
+const drawPins=()=>pins.clearLayers(); // no markers for the full list: a red dot appears only for the chosen place (see showOnMap/startDirections)
 const sheetH=()=>document.documentElement.style.setProperty("--sheet",$("#sheet").hidden?"0px":$("#sheet").offsetHeight+"px");
 function locate(){const b=$("#locate");if(!navigator.geolocation)return msg("This device has no GPS support.");
  if(!isSecureContext)return msg("GPS needs HTTPS (or localhost).");b.classList.add("busy");
@@ -385,8 +385,8 @@ function locate(){const b=$("#locate");if(!navigator.geolocation)return msg("Thi
  navigator.geolocation.getCurrentPosition(ok,e=>e.code===1?bad(e):navigator.geolocation.getCurrentPosition(ok,bad,{enableHighAccuracy:false,timeout:15000,maximumAge:60000}),{enableHighAccuracy:true,timeout:8000,maximumAge:30000});}
 // single entry points used by Map, Discover, Saved and Reels
 async function showOnMap(id){const p=find(id);if(!p)return;switchTab("map");map.invalidateSize();ring.clearLayers();if(!await ensureCoords(p)){sheet(placeSheet(p));return msg("No exact pin found. Use Open in Maps.");}
- L.circleMarker([p.lat,p.lng],{radius:17,color:"#f5b52e",weight:4,fill:false}).addTo(ring);map.flyTo([p.lat,p.lng],15,{duration:.8});sheet(placeSheet(p));}
-function startDirections(id){const p=find(id);if(!p)return;switchTab("map");map.invalidateSize();ring.clearLayers();if(p.lat!=null){L.circleMarker([p.lat,p.lng],{radius:17,color:"#f5b52e",weight:4,fill:false}).addTo(ring);map.flyTo([p.lat,p.lng],14,{duration:.8});}
+ L.circleMarker([p.lat,p.lng],{radius:9,color:"#fff",weight:3,fillColor:"#d6402f",fillOpacity:1}).addTo(ring);map.flyTo([p.lat,p.lng],15,{duration:.8});sheet(placeSheet(p));}
+function startDirections(id){const p=find(id);if(!p)return;switchTab("map");map.invalidateSize();ring.clearLayers();if(p.lat!=null){L.circleMarker([p.lat,p.lng],{radius:9,color:"#fff",weight:3,fillColor:"#d6402f",fillOpacity:1}).addTo(ring);map.flyTo([p.lat,p.lng],14,{duration:.8});}
  sheet(`<h2>Go to ${esc(p.name)}</h2><p class="meta">How are you getting there?</p><div class="row"><button class="pri" data-a="go" data-m="driving" data-id="${id}">🚗 Drive</button><button class="pri" data-a="go" data-m="walking" data-id="${id}">🚶 Walk</button><button class="pri" data-a="go" data-m="commute" data-id="${id}">🚌 Commute</button></div>`,()=>sheet(placeSheet(p)));}
 let SB=null;function sheet(h,back){SB=back||null;const s=$("#sheet");s.hidden=!h;s.innerHTML=h?`<div class="grab" data-a="close"></div><div class="sh2">${back?'<button data-a="back">← Back</button>':"<span></span>"}<button data-a="close" aria-label="Close">✕</button></div>${h}`:"";s.style.animation="none";s.offsetWidth;s.style.animation="";requestAnimationFrame(sheetH);}
 function placeSheet(p){return `${p.photo?`<div class="ph"><img src="${esc(p.photo)}" alt=""></div>`:`<div class="ph">${catOf(p)[0]?.emoji||"📍"}</div>`}<h2>${esc(p.name)} ${demoTag(p.demo)}</h2>
@@ -470,7 +470,7 @@ map.on("dragstart",()=>{if(N.st==="active"){N.follow=false;$("#recenter").hidden
 // ---- events
 document.addEventListener("click",async e=>{if(!e.target.closest("#top"))sugg.hidden=true;const b=e.target.closest("[data-t],[data-a]");if(!b)return;const{t,a,id,m,q}=b.dataset;
  if(t)return switchTab(t);
- if(a==="close"){N.want=null;sheet("");}if(a==="back"){N.want=null;SB&&SB();}if(a==="clear"){line.clearLayers();ring.clearLayers();drawPins(S.places);sheet("");}
+ if(a==="close"){N.want=null;ring.clearLayers();sheet("");}if(a==="back"){N.want=null;SB&&SB();}if(a==="clear"){line.clearLayers();ring.clearLayers();drawPins(S.places);sheet("");}
  if(a==="cat"){S.cat=id;dbody();}if(a==="map")showOnMap(id);if(a==="dir")startDirections(id);if(a==="go")go(id,m);if(a==="start")startNav();if(a==="endnav")endNav();if(a==="locate"){switchTab("map");locate();}if(a==="web")webSearch(q);
  if(a==="save"){S.saved=await repo.toggleSaved(id);discover();saved();reels();if(!$("#sheet").hidden&&find(id))sheet(placeSheet(find(id)));}
  if(a==="like"){S.likes.has(id)?S.likes.delete(id):S.likes.add(id);localStorage.setItem("lagunago.likes",JSON.stringify([...S.likes]));const y=$("#v-reels").scrollTop;reels();$("#v-reels").scrollTop=y;}
