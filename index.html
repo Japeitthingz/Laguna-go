@@ -380,21 +380,21 @@ return {ic};})();
 __m["data/towns"]=(()=>{
 // Laguna's 30 cities/municipalities, used ONLY to draw town-name labels on the map.
 // Coordinates are approximate town centres (label placement), not survey data. Adjust any that look off.
-const t=(name,lat,lng)=>({name,lat,lng});
-const towns=[t("Alaminos",14.0636,121.2461),t("Bay",14.1833,121.2833),t("Biñan",14.3333,121.0833),t("Cabuyao",14.2769,121.125),t("Calamba",14.2117,121.1653),t("Calauan",14.1472,121.3167),
-t("Cavinti",14.2431,121.5083),t("Famy",14.4358,121.4528),t("Kalayaan",14.325,121.56),t("Liliw",14.1286,121.4347),t("Los Baños",14.1699,121.2441),t("Luisiana",14.185,121.51),
-t("Lumban",14.2986,121.4608),t("Mabitac",14.4306,121.4272),t("Magdalena",14.2,121.4333),t("Majayjay",14.1469,121.4733),t("Nagcarlan",14.1364,121.4153),t("Paete",14.3636,121.4833),
-t("Pagsanjan",14.2736,121.4547),t("Pakil",14.3797,121.4783),t("Pangil",14.4036,121.465),t("Pila",14.2358,121.3622),t("Rizal",14.11,121.3956),t("San Pablo",14.0683,121.3256),
-t("San Pedro",14.3583,121.0583),t("Santa Cruz",14.2792,121.4153),t("Santa Maria",14.4667,121.425),t("Santa Rosa",14.3122,121.1114),t("Siniloan",14.4175,121.4478),t("Victoria",14.225,121.325)];
+const t=(name,lat,lng,z)=>({name,lat,lng,z}); // z = minimum map zoom at which the label shows
+const towns=[t("Alaminos",14.0636,121.2461,11),t("Bay",14.1833,121.2833,11),t("Biñan",14.3333,121.0833,10),t("Cabuyao",14.2769,121.125,10),t("Calamba",14.2117,121.1653,9),t("Calauan",14.1472,121.3167,11),
+t("Cavinti",14.2431,121.5083,10.5),t("Famy",14.4358,121.4528,11),t("Kalayaan",14.325,121.56,11),t("Liliw",14.1286,121.4347,12),t("Los Baños",14.1699,121.2441,10),t("Luisiana",14.185,121.51,11),
+t("Lumban",14.2986,121.4608,11),t("Mabitac",14.4306,121.4272,11.5),t("Magdalena",14.2,121.4333,11),t("Majayjay",14.1469,121.4733,11),t("Nagcarlan",14.1364,121.4153,11),t("Paete",14.3636,121.4833,11),
+t("Pagsanjan",14.2736,121.4547,11),t("Pakil",14.3797,121.4783,11.5),t("Pangil",14.4036,121.465,11),t("Pila",14.2358,121.3622,10.5),t("Rizal",14.11,121.3956,11),t("San Pablo",14.0683,121.3256,9),
+t("San Pedro",14.3583,121.0583,10.5),t("Santa Cruz",14.2792,121.4153,9),t("Santa Maria",14.4667,121.425,10.5),t("Santa Rosa",14.3122,121.1114,9),t("Siniloan",14.4175,121.4478,9.5),t("Victoria",14.225,121.325,11)];
 
 return {towns};})();
 __m["services/mapProvider"]=(()=>{
-// Map provider adapter (Leaflet). Default tiles have NO place labels (Carto Voyager, free for non-commercial use with attribution);
-// Laguna town names are drawn separately by addTownLabels. Falls back to OSM standard tiles if Carto fails to load.
+// Map provider adapter (Leaflet). Default tiles have NO place labels (Esri World Light Gray Base, credit required);
+// Laguna town names are drawn separately by addTownLabels. Falls back to OSM standard tiles if they fail to load.
 
 const LAGUNA=L.latLngBounds([13.95,121.0],[14.45,121.7]);
 const ENV_URL=ENV.VITE_TILE_URL;
-const CARTO="https://{s}.basemaps.cartocdn.com/rastertiles/voyager_nolabels/{z}/{x}/{y}{r}.png",OSM="https://tile.openstreetmap.org/{z}/{x}/{y}.png";
+const BASE="https://services.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}",OSM="https://tile.openstreetmap.org/{z}/{x}/{y}.png";
 function createMap(id,onTileError){
  const node=document.getElementById(id);
  const m=L.map(node,{zoomControl:false,zoomSnap:.25,minZoom:9,maxBounds:LAGUNA.pad(1.5)}).setView([14.17,121.33],10); // valid view even if the container is 0px tall at startup
@@ -403,15 +403,15 @@ function createMap(id,onTileError){
  const add=(url,opt)=>{layer=L.tileLayer(url,{maxZoom:19,...opt}).on("tileerror",()=>{errs++;
   if(!fell&&!ENV_URL&&errs>=4){fell=true;errs=0;m.removeLayer(layer);add(OSM,{attribution:"© OpenStreetMap contributors"});}
   else if((fell||ENV_URL)&&errs>=4&&!warned){warned=true;onTileError&&onTileError();}}).addTo(m);};
- add(ENV_URL||CARTO,{subdomains:"abcd",attribution:"© OpenStreetMap contributors © CARTO"});
+ add(ENV_URL||BASE,{maxNativeZoom:16,attribution:"Tiles © Esri"});
  let fitted=false;
  const sized=()=>{if(node.clientWidth>0&&node.clientHeight>0){m.invalidateSize();if(!fitted){fitted=true;m.fitBounds(LAGUNA);}}};
  window.ResizeObserver?new ResizeObserver(sized).observe(node):setTimeout(sized,300);
  window.addEventListener("load",sized);
  return m;}
-function addTownLabels(m,towns){
- const g=L.layerGroup(towns.map(t=>L.marker([t.lat,t.lng],{interactive:false,keyboard:false,icon:L.divIcon({className:"tl",html:`<span>${t.name}</span>`,iconSize:[0,0]})}))).addTo(m);
- const z=()=>m.getContainer().classList.toggle("zhide",m.getZoom()>=15);m.on("zoomend",z);z();return g;}
+function addTownLabels(m,towns){ // each town has a minimum zoom (z) so labels never pile up
+ const g=L.layerGroup().addTo(m),items=towns.map(t=>({z:t.z||11,m:L.marker([t.lat,t.lng],{interactive:false,keyboard:false,icon:L.divIcon({className:"tl",html:`<span>${t.name}</span>`,iconSize:[0,0]})})}));
+ const upd=()=>{const z=m.getZoom();items.forEach(i=>z>=i.z&&z<15?g.addLayer(i.m):g.removeLayer(i.m));};m.on("zoomend",upd);upd();return g;}
 
 return {createMap,LAGUNA,addTownLabels};})();
 __m["main"]=(()=>{
