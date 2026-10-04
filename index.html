@@ -86,6 +86,12 @@ button.pri,#search button.go{background:var(--lake)}button.start{background:var(
 #navbot{left:12px;right:12px;bottom:calc(8px + env(safe-area-inset-bottom));border-radius:22px;box-shadow:var(--sh)}#navmsg{top:calc(124px + env(safe-area-inset-top))}
 #app.nav #explore{display:none}
 #sugg button{display:flex;align-items:center;gap:8px}
+
+/* compact explore UI + town labels */
+#explore{bottom:8px;gap:8px}.hchips{gap:6px}.hchips button{height:32px;padding:0 12px;font-size:12px;gap:5px}.hchips button .i{width:14px;height:14px}
+.xc{flex:0 0 72%;padding:10px 14px;border-radius:18px}.xc .k{margin-bottom:2px;font-size:9px}.xc b{font-size:14px}
+.xc .s{display:flex;justify-content:space-between;gap:8px;font-size:12px;margin-top:1px}.xc .s span:first-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.xc .v{flex:none;margin:0;font-size:12px}
+.tl{background:none;border:0}.tl span{position:absolute;transform:translate(-50%,-50%);white-space:nowrap;font:500 11px var(--font);color:#3d4b4e;text-shadow:0 0 3px #fff,0 0 3px #fff,0 0 2px #fff;pointer-events:none}.zhide .tl{display:none}
 </style></head><body><div id="app">
 <main><section id="v-map"><div id="map"></div>
 <div id="top"><form id="search"><span class="logo">Laguna<b>Go</b></span><span class="sep"></span><input name="q" autocomplete="off" placeholder="Where do you want to go?" aria-label="Search places"><button aria-label="Search online"></button></form><ul id="sugg" hidden></ul></div>
@@ -371,28 +377,47 @@ const P={map:'<path d="M3 6l6-2 6 2 6-2v14l-6 2-6-2-6 2z"/><path d="M9 4v14M15 6
 const ic=n=>`<svg class="i" viewBox="0 0 24 24" aria-hidden="true">${P[n]||""}</svg>`;
 
 return {ic};})();
+__m["data/towns"]=(()=>{
+// Laguna's 30 cities/municipalities, used ONLY to draw town-name labels on the map.
+// Coordinates are approximate town centres (label placement), not survey data. Adjust any that look off.
+const t=(name,lat,lng)=>({name,lat,lng});
+const towns=[t("Alaminos",14.0636,121.2461),t("Bay",14.1833,121.2833),t("Biñan",14.3333,121.0833),t("Cabuyao",14.2769,121.125),t("Calamba",14.2117,121.1653),t("Calauan",14.1472,121.3167),
+t("Cavinti",14.2431,121.5083),t("Famy",14.4358,121.4528),t("Kalayaan",14.325,121.56),t("Liliw",14.1286,121.4347),t("Los Baños",14.1699,121.2441),t("Luisiana",14.185,121.51),
+t("Lumban",14.2986,121.4608),t("Mabitac",14.4306,121.4272),t("Magdalena",14.2,121.4333),t("Majayjay",14.1469,121.4733),t("Nagcarlan",14.1364,121.4153),t("Paete",14.3636,121.4833),
+t("Pagsanjan",14.2736,121.4547),t("Pakil",14.3797,121.4783),t("Pangil",14.4036,121.465),t("Pila",14.2358,121.3622),t("Rizal",14.11,121.3956),t("San Pablo",14.0683,121.3256),
+t("San Pedro",14.3583,121.0583),t("Santa Cruz",14.2792,121.4153),t("Santa Maria",14.4667,121.425),t("Santa Rosa",14.3122,121.1114),t("Siniloan",14.4175,121.4478),t("Victoria",14.225,121.325)];
+
+return {towns};})();
 __m["services/mapProvider"]=(()=>{
-// Map provider adapter (Leaflet + OSM). Swap tiles/provider here or via VITE_TILE_URL.
+// Map provider adapter (Leaflet). Default tiles have NO place labels (Carto Voyager, free for non-commercial use with attribution);
+// Laguna town names are drawn separately by addTownLabels. Falls back to OSM standard tiles if Carto fails to load.
 
 const LAGUNA=L.latLngBounds([13.95,121.0],[14.45,121.7]);
+const ENV_URL=ENV.VITE_TILE_URL;
+const CARTO="https://{s}.basemaps.cartocdn.com/rastertiles/voyager_nolabels/{z}/{x}/{y}{r}.png",OSM="https://tile.openstreetmap.org/{z}/{x}/{y}.png";
 function createMap(id,onTileError){
  const node=document.getElementById(id);
- const m=L.map(node,{zoomControl:false,minZoom:9,maxBounds:LAGUNA.pad(1.5)}).setView([14.17,121.33],10);
- m.attributionControl.setPrefix(false);m.attributionControl.setPosition("topleft"); // keeps the OSM credit visible, clear of the bottom cards // valid view even if the container is 0px tall at startup
- let warned=false;
- L.tileLayer(ENV.VITE_TILE_URL||"https://tile.openstreetmap.org/{z}/{x}/{y}.png",{attribution:"© OpenStreetMap contributors",maxZoom:19})
-  .on("tileerror",()=>{if(!warned){warned=true;onTileError&&onTileError();}}).addTo(m);
+ const m=L.map(node,{zoomControl:false,zoomSnap:.25,minZoom:9,maxBounds:LAGUNA.pad(1.5)}).setView([14.17,121.33],10); // valid view even if the container is 0px tall at startup
+ m.attributionControl.setPrefix(false);m.attributionControl.setPosition("topleft"); // keeps the credit visible, clear of the bottom cards
+ let layer,errs=0,fell=false,warned=false;
+ const add=(url,opt)=>{layer=L.tileLayer(url,{maxZoom:19,...opt}).on("tileerror",()=>{errs++;
+  if(!fell&&!ENV_URL&&errs>=4){fell=true;errs=0;m.removeLayer(layer);add(OSM,{attribution:"© OpenStreetMap contributors"});}
+  else if((fell||ENV_URL)&&errs>=4&&!warned){warned=true;onTileError&&onTileError();}}).addTo(m);};
+ add(ENV_URL||CARTO,{subdomains:"abcd",attribution:"© OpenStreetMap contributors © CARTO"});
  let fitted=false;
  const sized=()=>{if(node.clientWidth>0&&node.clientHeight>0){m.invalidateSize();if(!fitted){fitted=true;m.fitBounds(LAGUNA);}}};
  window.ResizeObserver?new ResizeObserver(sized).observe(node):setTimeout(sized,300);
  window.addEventListener("load",sized);
  return m;}
+function addTownLabels(m,towns){
+ const g=L.layerGroup(towns.map(t=>L.marker([t.lat,t.lng],{interactive:false,keyboard:false,icon:L.divIcon({className:"tl",html:`<span>${t.name}</span>`,iconSize:[0,0]})}))).addTo(m);
+ const z=()=>m.getContainer().classList.toggle("zhide",m.getZoom()>=15);m.on("zoomend",z);z();return g;}
 
-return {createMap,LAGUNA};})();
+return {createMap,LAGUNA,addTownLabels};})();
 __m["main"]=(()=>{
 
 const {repo,DEMO}=__m["services/repo"];const {route,geocode}=__m["services/routing"];
-const {createMap,LAGUNA}=__m["services/mapProvider"];const {ic}=__m["ui/icons"];const {prepare,progress,instruction,arrow,fmtDist,fmtMin,eta}=__m["services/navigation"];const {MODES}=__m["data/transportModes"];
+const {createMap,LAGUNA,addTownLabels}=__m["services/mapProvider"];const {towns}=__m["data/towns"];const {ic}=__m["ui/icons"];const {prepare,progress,instruction,arrow,fmtDist,fmtMin,eta}=__m["services/navigation"];const {MODES}=__m["data/transportModes"];
 const $=s=>document.querySelector(s),esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const S={loc:null,cat:"all",q:"",places:[],cats:[],reels:[],saved:new Set(),ext:[],likes:new Set(JSON.parse(localStorage.getItem("lagunago.likes")||"[]"))};
 const TABS=[["map","map","Map"],["discover","compass","Discover"],["reels","play","Reels"],["saved","heart","Saved"],["profile","user","Profile"]];
@@ -479,7 +504,7 @@ const HC=[["nature","Nature","leaf"],["resorts","Resorts","pool"],["food","Food"
 const hcMatch={nature:p=>p.cats.includes("nature"),resorts:p=>p.cats.includes("hotels")&&RES.test(p.name),food:p=>p.cats.some(c=>c==="restaurants"||c==="cafes"),hotels:p=>p.cats.includes("hotels")&&!RES.test(p.name),activities:p=>p.cats.includes("activities"),shopping:p=>p.cats.includes("shopping")};
 function explore(){const ex=$("#explore");if(!ex)return;const near=S.loc&&LAGUNA.contains(S.loc);let l=S.places.filter(p=>!S.hc||hcMatch[S.hc](p));
  l=(near?[...l].sort((a,b)=>km(S.loc,a)-km(S.loc,b)):[...l].sort((a,b)=>(a.lat==null)-(b.lat==null))).slice(0,10);
- ex.innerHTML=`<div class="hchips">${HC.map(([k,t,i])=>`<button class="${S.hc===k?"on":""}" data-a="hc" data-id="${k}">${ic(i)}${t}</button>`).join("")}</div>`+(l.length?`<div class="hcards">${l.map(p=>`<article class="xc" data-a="map" data-id="${p.id}"><div class="k"><span>${near?"EXPLORE NEARBY":"EXPLORE LAGUNA"}</span>${near&&p.lat!=null?`<span class="km">${dist(p)}</span>`:""}</div><b>${esc(p.name)} ${demoTag(p.demo)}</b><div class="s">${esc(p.town)}, Laguna${catOf(p).map(c=>" · "+c.label).join("")}</div><div class="v">View details →</div></article>`).join("")}</div>`:"");sheetH();}
+ ex.innerHTML=`<div class="hchips">${HC.map(([k,t,i])=>`<button class="${S.hc===k?"on":""}" data-a="hc" data-id="${k}">${ic(i)}${t}</button>`).join("")}</div>`+(l.length?`<div class="hcards">${l.map(p=>`<article class="xc" data-a="map" data-id="${p.id}"><div class="k"><span>${near?"EXPLORE NEARBY":"EXPLORE LAGUNA"}</span>${near&&p.lat!=null?`<span class="km">${dist(p)}</span>`:""}</div><b>${esc(p.name)} ${demoTag(p.demo)}</b><div class="s"><span>${esc(p.town)}${catOf(p).map(c=>" · "+c.label).join("")}</span><span class="v">View details →</span></div></article>`).join("")}</div>`:"");sheetH();}
 // ---- real-time navigation (watchPosition only; marker moves only on real GPS fixes)
 const N={st:"idle",follow:true,off:0,last:0,note:"",acc:0};
 function drawLine(r,p){line.clearLayers();L.polyline(r.coords,{color:"#0b5563",weight:7,opacity:.9}).addTo(line);L.marker([p.lat,p.lng],{icon:L.divIcon({html:"🎯",className:"dest",iconSize:[30,30]})}).addTo(line);}
@@ -518,7 +543,7 @@ document.addEventListener("click",async e=>{if(!e.target.closest("#top"))sugg.hi
  if(a==="tap"){const r=b.closest(".reel"),v=r.querySelector("video");v?(v.paused?v.play():v.pause()):r.classList.toggle("paused");}
  if(a==="share"){const r=S.reels.find(r=>r.id===id),d={title:r.title,url:location.href};navigator.share?navigator.share(d).catch(()=>{}):navigator.clipboard?.writeText(d.url).then(()=>msg("Link copied"));}});
 document.addEventListener("change",e=>{const s=e.target;if(s.dataset.a==="from")commute(find(s.dataset.id),s.value);});
-$("#locate").innerHTML=ic("locate");$("#home").innerHTML=ic("compass")+"Explore Laguna";$("#search button").innerHTML=ic("search");$("#locate").onclick=locate;$("#recenter").onclick=()=>{N.follow=true;$("#recenter").hidden=true;S.loc&&map.setView([S.loc.lat,S.loc.lng],Math.max(map.getZoom(),16),{animate:false});};$("#home").onclick=()=>{ring.clearLayers();map.flyToBounds(LAGUNA,{duration:.8});};
+$("#locate").innerHTML=ic("locate");$("#home").innerHTML=ic("compass")+"Explore Laguna";$("#search button").innerHTML=ic("search");if(window.ResizeObserver)new ResizeObserver(sheetH).observe($("#explore"));addTownLabels(map,towns);$("#locate").onclick=locate;$("#recenter").onclick=()=>{N.follow=true;$("#recenter").hidden=true;S.loc&&map.setView([S.loc.lat,S.loc.lng],Math.max(map.getZoom(),16),{animate:false});};$("#home").onclick=()=>{ring.clearLayers();map.flyToBounds(LAGUNA,{duration:.8});};
 $("#nav").innerHTML=TABS.map(([id,i,l])=>`<button data-t="${id}"><span class="ic">${ic(i)}</span><span>${l}</span></button>`).join("");
 (async()=>{[S.cats,S.places,S.reels,S.saved]=await Promise.all([repo.categories(),repo.places(),repo.reels(),repo.saved()]);S.reels=S.reels.filter(r=>find(r.placeId));renderAll();switchTab("map");})();
 
