@@ -1,7 +1,7 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="referrer" content="strict-origin-when-cross-origin"><meta name="theme-color" content="#0b5563">
 <title>Laguna Go</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700&family=Figtree:wght@400;600&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"><style>:root{--lake:#0b5563;--lake2:#083e49;--jeep:#d6402f;--sun:#f5b52e;--cream:#fffaf0;--paddy:#e3ecd3;--ink:#16282c;--mute:#5f7075;font-family:Figtree,system-ui,sans-serif}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}[hidden]{display:none!important}
 html,body{margin:0;height:100%;background:var(--paddy);color:var(--ink)}
@@ -58,10 +58,38 @@ button.end{background:var(--jeep);border-color:var(--jeep);color:#fff}button.sta
 #recenter{position:absolute;z-index:810;left:50%;transform:translateX(-50%);bottom:160px;background:var(--lake);color:#fff;box-shadow:0 4px 14px #0b556360}
 #app.nav #nav,#app.nav #top,#app.nav .fabs{display:none}.dest{font-size:30px;text-align:center}
 .sh2{display:flex;justify-content:space-between;align-items:center;margin:-2px 0 4px}.sh2 button{padding:6px 14px;border-radius:99px;min-height:36px}
+
+/* ===== v2 design system: teal / sage / cream, Inter, line icons ===== */
+:root{--lake:#075E68;--lake2:#054851;--paddy:#DDE8D8;--cream:#F7F5ED;--ink:#172326;--mute:#6B7779;--sun:#E8A33D;--sh:0 4px 16px rgba(0,0,0,.08);--font:Inter,-apple-system,BlinkMacSystemFont,"SF Pro Text",system-ui,sans-serif;font-family:var(--font)}
+body,button,input,select{font-family:var(--font)}h1,h2,h3,.st b,#navtop h2{font-family:var(--font);letter-spacing:-.01em;font-weight:600}
+.i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+#top{left:16px;right:16px;top:calc(12px + env(safe-area-inset-top))}
+#search{height:52px;padding:0 6px 0 16px;border-radius:22px;box-shadow:var(--sh);gap:10px;transition:box-shadow .2s,transform .2s}
+#search:focus-within{box-shadow:0 8px 24px rgba(7,94,104,.18);transform:translateY(-1px)}
+.logo{font:600 16px var(--font);letter-spacing:-.02em;color:var(--lake)}.logo b{color:var(--lake);font-weight:400}.sep{width:1px;height:22px;background:#e3e8e1}
+#search input{font-size:16px;padding:0;color:var(--ink)}#search button{background:none;color:var(--lake);border:0;width:40px;height:40px;padding:0;border-radius:14px;display:grid;place-items:center}
+.leaflet-top.leaflet-left{top:calc(76px + env(safe-area-inset-top));left:12px}.leaflet-control-attribution{background:rgba(255,255,255,.85);font-size:10px;border-radius:8px;padding:2px 6px}
+.fabs{right:16px;gap:10px}.fabs button{background:#fff;border:0;color:var(--lake);box-shadow:var(--sh);height:48px;min-width:48px;border-radius:24px;padding:0 16px;display:flex;align-items:center;justify-content:center;gap:8px;font:500 14px var(--font)}#locate{width:48px;padding:0}
+#explore{position:absolute;z-index:500;left:0;right:0;bottom:12px;display:flex;flex-direction:column;gap:10px;animation:up .25s}
+.hchips,.hcards{display:flex;overflow-x:auto;padding:0 16px;scrollbar-width:none}.hchips::-webkit-scrollbar,.hcards::-webkit-scrollbar{display:none}.hchips{gap:8px}.hcards{gap:12px;scroll-snap-type:x mandatory;scroll-padding:0 16px}
+.hchips button{flex:none;height:38px;padding:0 14px;border:0;background:#fff;color:var(--ink);border-radius:19px;box-shadow:var(--sh);display:flex;gap:6px;align-items:center;font:500 13px var(--font);transition:background .2s,color .2s,transform .15s}
+.hchips button .i{width:16px;height:16px}.hchips button.on{background:var(--lake);color:#fff}
+.xc{flex:0 0 84%;scroll-snap-align:start;background:#fff;border-radius:20px;padding:14px 16px;box-shadow:var(--sh);transition:transform .15s;cursor:pointer}.xc:active{transform:scale(.98)}
+.xc .k{display:flex;justify-content:space-between;font:600 10px var(--font);letter-spacing:.08em;color:var(--mute);margin-bottom:6px}.xc b{display:block;font:600 16px var(--font);color:var(--ink)}
+.xc .s{font-size:13px;color:var(--mute);margin-top:2px}.xc .v{margin-top:8px;font:500 13px var(--font);color:var(--lake)}
+#nav{border-top:1px solid rgba(0,0,0,.06);box-shadow:0 -4px 16px rgba(0,0,0,.04);padding:6px 8px calc(6px + env(safe-area-inset-bottom))}
+#nav button{color:#8a9698;gap:2px;font:500 11px var(--font);padding:4px 0;box-shadow:none}#nav span{font-size:inherit}
+#nav .ic{width:56px;height:30px;border-radius:15px;display:grid;place-items:center;transition:background .2s,color .2s}#nav .ic .i{width:22px;height:22px}
+#nav .on{color:var(--lake);box-shadow:none;font-weight:600}#nav .on .ic{background:var(--paddy)}
+button.pri,#search button.go{background:var(--lake)}button.start{background:var(--lake);border-color:var(--lake);border-radius:16px}
+#navtop{top:calc(8px + env(safe-area-inset-top));left:12px;right:12px;border-radius:20px;padding:14px 16px}
+#navbot{left:12px;right:12px;bottom:calc(8px + env(safe-area-inset-bottom));border-radius:22px;box-shadow:var(--sh)}#navmsg{top:calc(124px + env(safe-area-inset-top))}
+#app.nav #explore{display:none}
+#sugg button{display:flex;align-items:center;gap:8px}
 </style></head><body><div id="app">
 <main><section id="v-map"><div id="map"></div>
-<div id="top"><form id="search"><span class="logo">Laguna<b>Go</b></span><input name="q" autocomplete="off" placeholder="Saan tayo sa Laguna?" aria-label="Search places"><button aria-label="Search online">Go</button></form><ul id="sugg" hidden></ul></div>
-<div class="fabs"><button id="home" aria-label="Show all of Laguna">Laguna</button><button id="locate" aria-label="My location">◎</button></div><div id="msg" hidden></div></section>
+<div id="top"><form id="search"><span class="logo">Laguna<b>Go</b></span><span class="sep"></span><input name="q" autocomplete="off" placeholder="Where do you want to go?" aria-label="Search places"><button aria-label="Search online"></button></form><ul id="sugg" hidden></ul></div>
+<div class="fabs"><button id="home" aria-label="Explore Laguna"></button><button id="locate" aria-label="My location"></button></div><div id="msg" hidden></div><div id="explore"></div></section>
 <section id="v-discover" hidden></section><section id="v-reels" hidden></section>
 <section id="v-saved" hidden></section><section id="v-profile" hidden></section><div id="sheet" hidden></div></main>
 <div id="navtop" hidden></div><div id="navbot" hidden></div><div id="navmsg" hidden></div><button id="recenter" hidden>◎ Re-center</button><nav id="nav"></nav></div><div id="boot" style="position:fixed;z-index:9999;top:0;left:0;right:0;background:#fde8b8;color:#400;font:13px system-ui;padding:6px" hidden></div><script>addEventListener("error",e=>{var b=document.getElementById("boot");b.hidden=false;b.textContent="Error: "+e.message});setTimeout(function(){if(!window.__lg){var b=document.getElementById("boot");b.hidden=false;b.textContent="Laguna Go did not start. Leaflet may be blocked or a script failed."}},6000)</script><script type="module">
@@ -337,13 +365,20 @@ function progress(r,pos){const q=snap(r,[pos.lat,pos.lng]),remM=Math.max(0,r.tot
  return{off:q.d,remM,remSec:r.sec*remM/r.total,step,toNext:Math.max(0,step.along-q.along)};}
 
 return {prepare,progress,instruction,arrow,fmtDist,fmtMin,eta};})();
+__m["ui/icons"]=(()=>{
+// Inline line icons (Lucide-style, stroke only). Add new icons to P.
+const P={map:'<path d="M3 6l6-2 6 2 6-2v14l-6 2-6-2-6 2z"/><path d="M9 4v14M15 6v14"/>',compass:'<circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/>',play:'<rect x="3" y="3" width="18" height="18" rx="5"/><path d="M10 8.5l5 3.5-5 3.5z"/>',heart:'<path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.5A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/>',user:'<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6 8-6s8 2 8 6"/>',search:'<circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/>',locate:'<circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="1.5"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/>',leaf:'<path d="M5 19c0-8 5-13 14-14 0 9-5 14-13 14z"/><path d="M5 19l7-7"/>',pool:'<path d="M3 18c2 0 2-1.5 4-1.5S9 18 11 18s2-1.5 4-1.5 2 1.5 6 1.5"/><path d="M8 14V6a2 2 0 0 1 4 0M14 14V6a2 2 0 0 1 4 0"/>',food:'<path d="M7 3v8M5 3v5a2 2 0 0 0 4 0V3M7 11v10M17 3c-2 1-3 4-3 7h3v11"/>',bed:'<path d="M3 19V7M3 15h18v4M21 15v-3a3 3 0 0 0-3-3h-7v6"/>',peak:'<path d="M3 20l6-10 4 6 3-4 5 8z"/>',bag:'<path d="M5 8h14l-1 12H6zM9 8V6a3 3 0 0 1 6 0v2"/>'};
+const ic=n=>`<svg class="i" viewBox="0 0 24 24" aria-hidden="true">${P[n]||""}</svg>`;
+
+return {ic};})();
 __m["services/mapProvider"]=(()=>{
 // Map provider adapter (Leaflet + OSM). Swap tiles/provider here or via VITE_TILE_URL.
 
 const LAGUNA=L.latLngBounds([13.95,121.0],[14.45,121.7]);
 function createMap(id,onTileError){
  const node=document.getElementById(id);
- const m=L.map(node,{zoomControl:false,minZoom:9,maxBounds:LAGUNA.pad(1.5)}).setView([14.17,121.33],10); // valid view even if the container is 0px tall at startup
+ const m=L.map(node,{zoomControl:false,minZoom:9,maxBounds:LAGUNA.pad(1.5)}).setView([14.17,121.33],10);
+ m.attributionControl.setPrefix(false);m.attributionControl.setPosition("topleft"); // keeps the OSM credit visible, clear of the bottom cards // valid view even if the container is 0px tall at startup
  let warned=false;
  L.tileLayer(ENV.VITE_TILE_URL||"https://tile.openstreetmap.org/{z}/{x}/{y}.png",{attribution:"© OpenStreetMap contributors",maxZoom:19})
   .on("tileerror",()=>{if(!warned){warned=true;onTileError&&onTileError();}}).addTo(m);
@@ -357,10 +392,10 @@ return {createMap,LAGUNA};})();
 __m["main"]=(()=>{
 
 const {repo,DEMO}=__m["services/repo"];const {route,geocode}=__m["services/routing"];
-const {createMap,LAGUNA}=__m["services/mapProvider"];const {prepare,progress,instruction,arrow,fmtDist,fmtMin,eta}=__m["services/navigation"];const {MODES}=__m["data/transportModes"];
+const {createMap,LAGUNA}=__m["services/mapProvider"];const {ic}=__m["ui/icons"];const {prepare,progress,instruction,arrow,fmtDist,fmtMin,eta}=__m["services/navigation"];const {MODES}=__m["data/transportModes"];
 const $=s=>document.querySelector(s),esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const S={loc:null,cat:"all",q:"",places:[],cats:[],reels:[],saved:new Set(),ext:[],likes:new Set(JSON.parse(localStorage.getItem("lagunago.likes")||"[]"))};
-const TABS=[["map","🗺️","Map"],["discover","🔎","Discover"],["reels","🎬","Reels"],["saved","❤️","Saved"],["profile","👤","Profile"]];
+const TABS=[["map","map","Map"],["discover","compass","Discover"],["reels","play","Reels"],["saved","heart","Saved"],["profile","user","Profile"]];
 const find=id=>S.places.find(p=>p.id===id)||S.ext.find(p=>p.id===id);
 const km=(a,b)=>{if(a?.lat==null||b?.lat==null)return 1e9;const r=Math.PI/180,x=(b.lat-a.lat)*r,y=(b.lng-a.lng)*r,h=Math.sin(x/2)**2+Math.cos(a.lat*r)*Math.cos(b.lat*r)*Math.sin(y/2)**2;return 12742*Math.asin(Math.sqrt(h));};
 const dist=p=>{if(!S.loc||p.lat==null)return"";const d=km(S.loc,p);return d<1?Math.round(d*1000)+" m":d.toFixed(1)+" km";};
@@ -375,7 +410,7 @@ let mt;const msg=t=>{const m=$("#msg");m.textContent=t;m.hidden=false;clearTimeo
 // ---- map
 const map=createMap("map",()=>msg("Map tiles could not load. Check your connection; OpenStreetMap blocks requests that carry no referrer.")),pins=L.layerGroup().addTo(map),line=L.layerGroup().addTo(map),ring=L.layerGroup().addTo(map);let me;
 const drawPins=()=>pins.clearLayers(); // no markers for the full list: a red dot appears only for the chosen place (see showOnMap/startDirections)
-const sheetH=()=>document.documentElement.style.setProperty("--sheet",$("#sheet").hidden?"0px":$("#sheet").offsetHeight+"px");
+const sheetH=()=>{const sh=$("#sheet"),ex=$("#explore");document.documentElement.style.setProperty("--sheet",(sh.hidden?(ex&&!ex.hidden&&ex.offsetHeight?ex.offsetHeight+12:0):sh.offsetHeight)+"px");};
 function locate(){const b=$("#locate");if(!navigator.geolocation)return msg("This device has no GPS support.");
  if(!isSecureContext)return msg("GPS needs HTTPS (or localhost).");b.classList.add("busy");
  const ok=p=>{b.classList.remove("busy");S.loc={lat:p.coords.latitude,lng:p.coords.longitude};me&&me.remove();
@@ -388,7 +423,7 @@ async function showOnMap(id){const p=find(id);if(!p)return;switchTab("map");map.
  L.circleMarker([p.lat,p.lng],{radius:9,color:"#fff",weight:3,fillColor:"#d6402f",fillOpacity:1}).addTo(ring);map.flyTo([p.lat,p.lng],15,{duration:.8});sheet(placeSheet(p));}
 function startDirections(id){const p=find(id);if(!p)return;switchTab("map");map.invalidateSize();ring.clearLayers();if(p.lat!=null){L.circleMarker([p.lat,p.lng],{radius:9,color:"#fff",weight:3,fillColor:"#d6402f",fillOpacity:1}).addTo(ring);map.flyTo([p.lat,p.lng],14,{duration:.8});}
  sheet(`<h2>Go to ${esc(p.name)}</h2><p class="meta">How are you getting there?</p><div class="row"><button class="pri" data-a="go" data-m="driving" data-id="${id}">🚗 Drive</button><button class="pri" data-a="go" data-m="walking" data-id="${id}">🚶 Walk</button><button class="pri" data-a="go" data-m="commute" data-id="${id}">🚌 Commute</button></div>`,()=>sheet(placeSheet(p)));}
-let SB=null;function sheet(h,back){SB=back||null;const s=$("#sheet");s.hidden=!h;s.innerHTML=h?`<div class="grab" data-a="close"></div><div class="sh2">${back?'<button data-a="back">← Back</button>':"<span></span>"}<button data-a="close" aria-label="Close">✕</button></div>${h}`:"";s.style.animation="none";s.offsetWidth;s.style.animation="";requestAnimationFrame(sheetH);}
+let SB=null;function sheet(h,back){SB=back||null;const s=$("#sheet"),ex=$("#explore");s.hidden=!h;if(ex)ex.hidden=!!h;s.innerHTML=h?`<div class="grab" data-a="close"></div><div class="sh2">${back?'<button data-a="back">← Back</button>':"<span></span>"}<button data-a="close" aria-label="Close">✕</button></div>${h}`:"";s.style.animation="none";s.offsetWidth;s.style.animation="";requestAnimationFrame(sheetH);}
 function placeSheet(p){return `${p.photo?`<div class="ph"><img src="${esc(p.photo)}" alt=""></div>`:`<div class="ph">${catOf(p)[0]?.emoji||"📍"}</div>`}<h2>${esc(p.name)} ${demoTag(p.demo)}</h2>
 <p class="meta">${esc(p.town)}${p.town?", ":""}Laguna${S.loc?` · <span class="km">${dist(p)}</span>`:""}</p><div class="tags">${catOf(p).map(c=>`<span>${c.emoji} ${c.label}</span>`).join("")}</div><p>${esc(p.desc)}</p>${p.approx?'<p class="meta">Pin found by map search, so it is approximate.</p>':""}${p.pinNote?`<p class="meta">Pin note: ${esc(p.pinNote)}</p>`:""}${travelHtml(p)}
 <div class="row"><button class="pri" data-a="dir" data-id="${p.id}">Get Directions</button><button data-a="save" data-id="${p.id}">${S.saved.has(p.id)?"❤️ Saved":"🤍 Save"}</button><a class="btn" href="${mapsUrl(p)}" target="_blank" rel="noopener">Open in Maps</a></div>`;}
@@ -411,7 +446,7 @@ async function commute(p,from){const towns=[...new Set(S.places.map(x=>x.town))]
 const sugg=$("#sugg");
 $("#search input").addEventListener("input",e=>{const q=e.target.value.trim().toLowerCase();if(!q){sugg.hidden=true;return;}
  const l=S.places.filter(p=>(p.name+" "+p.town).toLowerCase().includes(q)).slice(0,5);
- sugg.innerHTML=l.map(p=>`<li><button data-a="map" data-id="${p.id}">${esc(p.name)}<small>${esc(p.town)}</small></button></li>`).join("")+`<li><button data-a="web" data-q="${esc(e.target.value.trim())}">🔎 Search all of Laguna for “${esc(e.target.value.trim())}”</button></li>`;sugg.hidden=false;});
+ sugg.innerHTML=l.map(p=>`<li><button data-a="map" data-id="${p.id}">${esc(p.name)}<small>${esc(p.town)}</small></button></li>`).join("")+`<li><button data-a="web" data-q="${esc(e.target.value.trim())}">${ic("search")} Search all of Laguna for “${esc(e.target.value.trim())}”</button></li>`;sugg.hidden=false;});
 async function webSearch(q){sugg.hidden=true;if(!q)return;msg("Searching…");try{S.ext=await geocode(q);}catch{return msg("Search service unreachable. Check your connection.");}
  if(!S.ext.length)return msg("Nothing found in Laguna. Try another spelling.");$("#msg").hidden=true;drawPins(S.ext);map.flyToBounds(S.ext.map(p=>[p.lat,p.lng]),{padding:[60,60],maxZoom:15});
  sheet(`<h2>Results</h2>${S.ext.map(p=>`<button class="res" style="width:100%;text-align:left;margin:4px 0" data-a="map" data-id="${p.id}">${esc(p.name)}<small class="meta"> ${esc(p.town)}</small></button>`).join("")}<button data-a="clear">Back to Laguna places</button>`);}
@@ -437,8 +472,14 @@ function reels(){const r=S.reels.length?(S.loc?[...S.reels].sort((a,b)=>km(S.loc
  document.querySelectorAll(".reel").forEach(el=>io.observe(el));}
 function saved(){const l=S.places.filter(p=>S.saved.has(p.id));$("#v-saved").innerHTML=`<header><h1>Saved</h1><p>Your places</p></header>${l.length?`<div class="grid">${l.map(card).join("")}</div>`:'<p class="empty">Tap 🤍 on any place to keep it here.</p>'}`;}
 function profile(){$("#v-profile").innerHTML=`<header><h1>Profile</h1><p>Guest on this device</p></header><div class="pad"><p>Location: ${S.loc?"on. It stays on this device and is never shared with other users.":"off."}</p><button data-a="locate">Use my location</button><p class="meta">${DEMO?"Demo data is on (VITE_USE_DEMO_DATA).":"Demo data is off."} Accounts and cross-device sync need a backend.</p></div>`;}
-function renderAll(){drawPins(S.places);discover();reels();saved();profile();}
+function renderAll(){drawPins(S.places);discover();reels();saved();profile();explore();}
 function switchTab(t){TABS.forEach(([id])=>$("#v-"+id).hidden=id!==t);document.querySelectorAll("#nav button").forEach(b=>b.classList.toggle("on",b.dataset.t===t));if(t!=="map")sheet("");else map.invalidateSize();}
+// ---- home: category shortcuts + explore cards (real place data only; hidden when empty)
+const HC=[["nature","Nature","leaf"],["resorts","Resorts","pool"],["food","Food","food"],["hotels","Hotels","bed"],["activities","Activities","peak"],["shopping","Shopping","bag"]],RES=/resort|spring/i;
+const hcMatch={nature:p=>p.cats.includes("nature"),resorts:p=>p.cats.includes("hotels")&&RES.test(p.name),food:p=>p.cats.some(c=>c==="restaurants"||c==="cafes"),hotels:p=>p.cats.includes("hotels")&&!RES.test(p.name),activities:p=>p.cats.includes("activities"),shopping:p=>p.cats.includes("shopping")};
+function explore(){const ex=$("#explore");if(!ex)return;const near=S.loc&&LAGUNA.contains(S.loc);let l=S.places.filter(p=>!S.hc||hcMatch[S.hc](p));
+ l=(near?[...l].sort((a,b)=>km(S.loc,a)-km(S.loc,b)):[...l].sort((a,b)=>(a.lat==null)-(b.lat==null))).slice(0,10);
+ ex.innerHTML=`<div class="hchips">${HC.map(([k,t,i])=>`<button class="${S.hc===k?"on":""}" data-a="hc" data-id="${k}">${ic(i)}${t}</button>`).join("")}</div>`+(l.length?`<div class="hcards">${l.map(p=>`<article class="xc" data-a="map" data-id="${p.id}"><div class="k"><span>${near?"EXPLORE NEARBY":"EXPLORE LAGUNA"}</span>${near&&p.lat!=null?`<span class="km">${dist(p)}</span>`:""}</div><b>${esc(p.name)} ${demoTag(p.demo)}</b><div class="s">${esc(p.town)}, Laguna${catOf(p).map(c=>" · "+c.label).join("")}</div><div class="v">View details →</div></article>`).join("")}</div>`:"");sheetH();}
 // ---- real-time navigation (watchPosition only; marker moves only on real GPS fixes)
 const N={st:"idle",follow:true,off:0,last:0,note:"",acc:0};
 function drawLine(r,p){line.clearLayers();L.polyline(r.coords,{color:"#0b5563",weight:7,opacity:.9}).addTo(line);L.marker([p.lat,p.lng],{icon:L.divIcon({html:"🎯",className:"dest",iconSize:[30,30]})}).addTo(line);}
@@ -471,14 +512,14 @@ map.on("dragstart",()=>{if(N.st==="active"){N.follow=false;$("#recenter").hidden
 document.addEventListener("click",async e=>{if(!e.target.closest("#top"))sugg.hidden=true;const b=e.target.closest("[data-t],[data-a]");if(!b)return;const{t,a,id,m,q}=b.dataset;
  if(t)return switchTab(t);
  if(a==="close"){N.want=null;ring.clearLayers();sheet("");}if(a==="back"){N.want=null;SB&&SB();}if(a==="clear"){line.clearLayers();ring.clearLayers();drawPins(S.places);sheet("");}
- if(a==="cat"){S.cat=id;dbody();}if(a==="map")showOnMap(id);if(a==="dir")startDirections(id);if(a==="go")go(id,m);if(a==="start")startNav();if(a==="endnav")endNav();if(a==="locate"){switchTab("map");locate();}if(a==="web")webSearch(q);
+ if(a==="cat"){S.cat=id;dbody();}if(a==="map")showOnMap(id);if(a==="dir")startDirections(id);if(a==="go")go(id,m);if(a==="hc"){S.hc=S.hc===id?null:id;explore();}if(a==="start")startNav();if(a==="endnav")endNav();if(a==="locate"){switchTab("map");locate();}if(a==="web")webSearch(q);
  if(a==="save"){S.saved=await repo.toggleSaved(id);discover();saved();reels();if(!$("#sheet").hidden&&find(id))sheet(placeSheet(find(id)));}
  if(a==="like"){S.likes.has(id)?S.likes.delete(id):S.likes.add(id);localStorage.setItem("lagunago.likes",JSON.stringify([...S.likes]));const y=$("#v-reels").scrollTop;reels();$("#v-reels").scrollTop=y;}
  if(a==="tap"){const r=b.closest(".reel"),v=r.querySelector("video");v?(v.paused?v.play():v.pause()):r.classList.toggle("paused");}
  if(a==="share"){const r=S.reels.find(r=>r.id===id),d={title:r.title,url:location.href};navigator.share?navigator.share(d).catch(()=>{}):navigator.clipboard?.writeText(d.url).then(()=>msg("Link copied"));}});
 document.addEventListener("change",e=>{const s=e.target;if(s.dataset.a==="from")commute(find(s.dataset.id),s.value);});
-$("#locate").onclick=locate;$("#recenter").onclick=()=>{N.follow=true;$("#recenter").hidden=true;S.loc&&map.setView([S.loc.lat,S.loc.lng],Math.max(map.getZoom(),16),{animate:false});};$("#home").onclick=()=>{ring.clearLayers();map.flyToBounds(LAGUNA,{duration:.8});};
-$("#nav").innerHTML=TABS.map(([id,i,l])=>`<button data-t="${id}"><span>${i}</span>${l}</button>`).join("");
+$("#locate").innerHTML=ic("locate");$("#home").innerHTML=ic("compass")+"Explore Laguna";$("#search button").innerHTML=ic("search");$("#locate").onclick=locate;$("#recenter").onclick=()=>{N.follow=true;$("#recenter").hidden=true;S.loc&&map.setView([S.loc.lat,S.loc.lng],Math.max(map.getZoom(),16),{animate:false});};$("#home").onclick=()=>{ring.clearLayers();map.flyToBounds(LAGUNA,{duration:.8});};
+$("#nav").innerHTML=TABS.map(([id,i,l])=>`<button data-t="${id}"><span class="ic">${ic(i)}</span><span>${l}</span></button>`).join("");
 (async()=>{[S.cats,S.places,S.reels,S.saved]=await Promise.all([repo.categories(),repo.places(),repo.reels(),repo.saved()]);S.reels=S.reels.filter(r=>find(r.placeId));renderAll();switchTab("map");})();
 
 return {};})();
